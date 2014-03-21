@@ -34,7 +34,7 @@ Configure plugin in your pom.xml:
          <configuration>
             <imgPath>../img</imgPath>
             <inputPath>${basedir}/src/main/sass/</inputPath>
-            <outputPath>${project.basedir}/target/</outputPath>
+            <outputPath>${basedir}/target/</outputPath>
             <includePath>${basedir}/src/main/sass/plugins/</includePath>
          </configuration>
       </plugin>
