@@ -42,8 +42,9 @@ Configure plugin in your pom.xml:
 </build>
 ```
 
-For windows, there are *.dlls included.
-For rest: you probably have to compile libsass and add it by using -Djna.library.path=(path to the dll)
+For windows, linux64 and osx, there are binaries included.
+
+For rest: you probably have to compile libsass and add it by using -Djna.library.path=(path to the binary)
 
 
 License
