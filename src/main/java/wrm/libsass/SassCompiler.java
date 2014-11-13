@@ -6,27 +6,29 @@ import wrm.libsass.api.LibSassDll;
 import wrm.libsass.api.OutputStyle;
 import wrm.libsass.api.sass_file_context;
 
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 
 public class SassCompiler {
-  static LibSassDll sass = (LibSassDll) Native.loadLibrary("sass", LibSassDll.class); //LibSassDll.INSTANCE;
+  private static final LibSassDll sass = (LibSassDll) Native.loadLibrary("sass", LibSassDll.class);
 
   public String compileFile(String inputFile, String includePath, String imgPath) throws SassCompilationException {
     sass_file_context ctx = null;
     try{
       ctx = sass.sass_new_file_context();
 
-      ctx.input_path = str(inputFile);
-      ctx.output_path = str("");
+      ctx.input_path = inputFile;
+      ctx.output_path = null;
 
-      String includePaths = includePath+File.pathSeparator+new File(inputFile).getParent();
+      String includePaths = new File(inputFile).getParent();
 
-      ctx.options.include_paths = str(includePaths);
-      ctx.options.image_path = str(imgPath);
-      ctx.options.source_comments=false;
-      ctx.source_map_string=str("");
+      if (includePath != null) {
+        includePaths = includePath + File.pathSeparator + includePaths;
+      }
+
+      ctx.options.include_paths = includePaths;
+      ctx.options.image_path = imgPath;
+      ctx.options.source_comments = false;
+      ctx.source_map_string = null;
       ctx.options.output_style = OutputStyle.EXPANDED.value();
 
       sass.sass_compile_file(ctx);
@@ -39,9 +41,7 @@ public class SassCompiler {
         throw new SassCompilationException("libsass returned null");
       }
 
-
       String output = ctx.output_string.getString(0);
-
 
       return output;
     } finally {
@@ -53,16 +53,5 @@ public class SassCompiler {
         throw new SassCompilationException(t);
       }
     }
-  }
-
-  /**
-   * converts a string to a pointer
-   * @param string
-   * @return
-   */
-  private Pointer str(String string){
-    Memory mem = new Memory(string.length() +1);
-    mem.setString(0, string);
-    return mem;
   }
 }

@@ -13,11 +13,11 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public class sass_context extends Structure {
   /// C type : const char*
-  public Pointer input_path;
+  public String input_path;
   /// C type : const char*
-  public Pointer output_path;
+  public String output_path;
   /// C type : const char*
-  public Pointer source_string;
+  public String source_string;
   /// C type : char*
   public Pointer output_string;
   /// C type : char*

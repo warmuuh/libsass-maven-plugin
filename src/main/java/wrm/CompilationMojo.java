@@ -32,29 +32,29 @@ public class CompilationMojo extends AbstractMojo {
 
 
   /**
-     * Location of the file.
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
-    private File outputPath;
+   * Location of the file.
+   * @parameter expression="${project.build.directory}"
+   * @required
+   */
+  private File outputPath;
 
 
-    /**
-     * Location of source files.
-     * @parameter expression="src/main/sass"
-     */
+  /**
+   * Location of source files.
+   * @parameter expression="src/main/sass"
+   */
   private String inputPath;
 
   /**
-     * Location of images.
-     * @parameter
-     */
+   * Location of images.
+   * @parameter
+   */
   private String imgPath = "";
 
   /**
-     * additional include path, ';'-separated
-     * @parameter
-     */
+   * additional include path, ';'-separated
+   * @parameter
+   */
   private String includePath = "";
 
 
@@ -74,19 +74,19 @@ public class CompilationMojo extends AbstractMojo {
     final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
     try {
       Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-          @Override
-          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-              if (matcher.matches(file) && !file.getFileName().toString().startsWith("_")) {
-                processFile(root, file);
-              }
-
-              return FileVisitResult.CONTINUE;
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          if (matcher.matches(file) && !file.getFileName().toString().startsWith("_")) {
+            processFile(root, file);
           }
 
-          @Override
-          public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-              return FileVisitResult.CONTINUE;
-          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+          return FileVisitResult.CONTINUE;
+        }
       });
     } catch (IOException e) {
       throw new MojoExecutionException("Failed", e);
@@ -105,8 +105,8 @@ public class CompilationMojo extends AbstractMojo {
 
 
   private void convertFile(String inputFile, String includePath,
-      String imgPath, String outputFile) throws FileNotFoundException,
-      IOException {
+                           String imgPath, String outputFile) throws FileNotFoundException,
+                           IOException {
     String content;
     try {
       content = compiler.compileFile(inputFile, includePath, imgPath);
@@ -121,9 +121,6 @@ public class CompilationMojo extends AbstractMojo {
     writeContentToFile(outputFile, content);
   }
 
-
-
-
   private void writeContentToFile(String outputFile, String content) throws IOException, FileNotFoundException {
     File f = new File(outputFile);
     f.getParentFile().mkdirs();
@@ -134,11 +131,5 @@ public class CompilationMojo extends AbstractMojo {
     fos.close();
     getLog().debug("Written to: " + f);
   }
-
-
-
-
-
-
 
 }

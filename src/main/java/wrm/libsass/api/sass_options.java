@@ -2,7 +2,6 @@ package wrm.libsass.api;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 /**
  * Thar be dragons.<br>
@@ -20,7 +19,7 @@ public class sass_options extends Structure {
    * Used to create sourceMappingUrl<br>
    * C type : const char*
    */
-  public Pointer source_map_file;
+  public String source_map_file;
   /// Disable sourceMappingUrl in css output
   public boolean omit_source_map_url;
   /// embed sourceMappingUrl as data uri
@@ -33,12 +32,12 @@ public class sass_options extends Structure {
    * Semicolon-separated on Windows<br>
    * C type : const char*
    */
-  public Pointer include_paths;
+  public String include_paths;
   /**
    * For the image-url Sass function<br>
    * C type : const char*
    */
-  public Pointer image_path;
+  public String image_path;
   /// Precision for outputting fractional numbers
   public int precision;
 
