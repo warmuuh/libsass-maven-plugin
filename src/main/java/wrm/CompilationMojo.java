@@ -28,16 +28,12 @@ import wrm.libsass.SassCompiler;
  * @phase generate-resources
  */
 public class CompilationMojo extends AbstractMojo {
-
-
-
   /**
    * Location of the file.
    * @parameter expression="${project.build.directory}"
    * @required
    */
   private File outputPath;
-
 
   /**
    * Location of source files.
@@ -49,18 +45,15 @@ public class CompilationMojo extends AbstractMojo {
    * Location of images.
    * @parameter
    */
-  private String imgPath = "";
+  private String imgPath;
 
   /**
    * additional include path, ';'-separated
    * @parameter
    */
-  private String includePath = "";
+  private String includePath;
 
-
-
-
-  private SassCompiler compiler = new SassCompiler();
+  private final SassCompiler compiler = new SassCompiler();
 
   public void execute() throws MojoExecutionException, MojoFailureException {
     inputPath = inputPath.replaceAll("\\\\", "/");
@@ -131,5 +124,4 @@ public class CompilationMojo extends AbstractMojo {
     fos.close();
     getLog().debug("Written to: " + f);
   }
-
 }
