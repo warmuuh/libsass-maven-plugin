@@ -8,48 +8,18 @@ import com.sun.jna.Library;
  */
 public interface LibSassDll extends Library {
   /**
-   * Original signature : <code>sass_context* sass_new_context()</code><br>
-   * <i>native declaration : sass_interface.h:83</i>
-   */
-  sass_context sass_new_context();
-  /**
    * Original signature : <code>sass_file_context* sass_new_file_context()</code><br>
    * <i>native declaration : sass_interface.h:84</i>
    */
   sass_file_context sass_new_file_context();
-  /**
-   * Original signature : <code>sass_folder_context* sass_new_folder_context()</code><br>
-   * <i>native declaration : sass_interface.h:85</i>
-   */
-  sass_folder_context sass_new_folder_context();
-  /**
-   * Original signature : <code>void sass_free_context(sass_context*)</code><br>
-   * <i>native declaration : sass_interface.h:87</i>
-   */
-  void sass_free_context(sass_context ctx);
   /**
    * Original signature : <code>void sass_free_file_context(sass_file_context*)</code><br>
    * <i>native declaration : sass_interface.h:88</i>
    */
   void sass_free_file_context(sass_file_context ctx);
   /**
-   * Original signature : <code>void sass_free_folder_context(sass_folder_context*)</code><br>
-   * <i>native declaration : sass_interface.h:89</i>
-   */
-  void sass_free_folder_context(sass_folder_context ctx);
-  /**
-   * Original signature : <code>int sass_compile(sass_context*)</code><br>
-   * <i>native declaration : sass_interface.h:91</i>
-   */
-  int sass_compile(sass_context ctx);
-  /**
    * Original signature : <code>int sass_compile_file(sass_file_context*)</code><br>
    * <i>native declaration : sass_interface.h:92</i>
    */
   int sass_compile_file(sass_file_context ctx);
-  /**
-   * Original signature : <code>int sass_compile_folder(sass_folder_context*)</code><br>
-   * <i>native declaration : sass_interface.h:93</i>
-   */
-  int sass_compile_folder(sass_folder_context ctx);
 }

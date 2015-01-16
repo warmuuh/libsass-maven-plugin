@@ -1,8 +1,11 @@
 package wrm.libsass.api;
+import com.sun.jna.Pointer;
 import java.util.Arrays;
 import java.util.List;
 
 import com.sun.jna.Structure;
+import java.util.Map;
+
 /**
  * Thar be dragons.<br>
  * <i>native declaration : sass_interface.h:18</i><br>
@@ -14,30 +17,30 @@ public class sass_options extends Structure {
   /// A value from above SASS_STYLE_* constants
   public int output_style;
   /// If you want inline source comments
-  public boolean source_comments;
+  public byte source_comments;
   /**
    * Used to create sourceMappingUrl<br>
    * C type : const char*
    */
-  public String source_map_file;
+  public Pointer source_map_file;
   /// Disable sourceMappingUrl in css output
-  public boolean omit_source_map_url;
+  public byte omit_source_map_url;
   /// embed sourceMappingUrl as data uri
-  public boolean source_map_embed;
+  public byte source_map_embed;
   /// embed include contents in maps
-  public boolean source_map_contents;
+  public byte source_map_contents;
   /// Treat source_string as sass (as opposed to scss)
-  public boolean is_indented_syntax_src;
+  public byte is_indented_syntax_src;
   /**
    * Semicolon-separated on Windows<br>
    * C type : const char*
    */
-  public String include_paths;
+  public Pointer include_paths;
   /**
    * For the image-url Sass function<br>
    * C type : const char*
    */
-  public String image_path;
+  public Pointer image_path;
   /// Precision for outputting fractional numbers
   public int precision;
 

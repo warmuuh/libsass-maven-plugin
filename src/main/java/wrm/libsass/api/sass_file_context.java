@@ -13,9 +13,9 @@ import com.sun.jna.ptr.PointerByReference;
  */
 public class sass_file_context extends Structure {
   /// C type : const char*
-  public String input_path;
+  public Pointer input_path;
   /// C type : const char*
-  public String output_path;
+  public Pointer output_path;
   /// C type : char*
   public Pointer output_string;
   /// C type : char*
@@ -28,7 +28,7 @@ public class sass_file_context extends Structure {
   /// C type : Sass_C_Function_Descriptor*
   public Pointer c_functions;
   /// C type : char**
-  public PointerByReference included_files;
+  public Pointer included_files;
   public int num_included_files;
 
   @Override

@@ -18,6 +18,8 @@ public class SassCompilerTest extends TestCase {
     String out = sassCompiler.compileFile(getClass().getResource("/test.scss").getFile(), null, null);
 
     assertTrue("wrong CSS output", out.contains("font: 100% Helvetica, sans-serif"));
-    assertTrue("wrong CSS output",out.contains("color: #333"));
+    assertTrue("wrong CSS output", out.contains("color: #333"));
+
+    assertTrue("wrong CSS output", out.contains("margin: 0"));
   }
 }
