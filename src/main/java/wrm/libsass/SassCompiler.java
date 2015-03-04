@@ -1,8 +1,8 @@
 package wrm.libsass;
 
-import wrm.libsass.api.LibSassDll;
+import sass.SassLibrary;
 import wrm.libsass.api.OutputStyle;
-import wrm.libsass.api.sass_file_context;
+import sass.sass_file_context;
 
 import java.io.File;
 
@@ -11,7 +11,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 public class SassCompiler {
-	private static final LibSassDll sass = (LibSassDll) Native.loadLibrary("sass", LibSassDll.class);
+	private static final SassLibrary sass = (SassLibrary) Native.loadLibrary("sass", SassLibrary.class);
 
 	public String compileFile(String inputFile, String includePath, String imgPath) throws SassCompilationException {
 		sass_file_context ctx = null;

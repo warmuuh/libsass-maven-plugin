@@ -34,10 +34,54 @@
       <version>3.1.1</version>
     </dependency>
     <dependency>
+      <groupId>com.nativelibs4java</groupId>
+      <artifactId>jnaerator</artifactId>
+      <version>0.12-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.10</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+        <plugin>
+          <groupId>com.nativelibs4java</groupId>
+          <artifactId>maven-jnaerator-plugin</artifactId>
+          <version>0.12-SNAPSHOT</version>
+          <executions>
+            <execution>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.4</version>
+          <executions>
+            <execution>
+              <id>test</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>add-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>${basedir}/target/generated-sources</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+    </plugins>
+
+  </build>
 </project>
