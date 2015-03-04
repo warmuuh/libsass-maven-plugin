@@ -4,13 +4,30 @@ Libsass Maven Plugin
 Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compile sass files.
 Uses Jna to interface with C-library.
 
+Changelog:
+* 0.1.1 - scss files can now be placed in inputpath/ directly
+* 0.1.0 - changed artefact group to `com.github.warmuuh`
+
 Installation
 -----
+either add on-demand-repository (using https://jitpack.io/)
+```
+<pluginRepositories>
+    <pluginRepository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </pluginRepository>
+</pluginRepositories>
+```
+
+or install locally
+
 ```
 git clone https://github.com/warmuuh/libsass-maven-plugin.git
 cd libsass-maven-plugin
 mvn install
 ```
+
 
 Usage
 -----
@@ -20,9 +37,9 @@ Configure plugin in your pom.xml:
 <build>
    <plugins>
       <plugin>
-         <groupId>wrm</groupId>
+         <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version>0.1.0-SNAPSHOT</version>
+         <version>0.1.1</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>

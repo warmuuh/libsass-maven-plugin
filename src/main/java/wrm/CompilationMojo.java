@@ -62,7 +62,7 @@ public class CompilationMojo extends AbstractMojo {
     getLog().debug("Output Path=" + outputPath);
 
     final Path root = Paths.get(inputPath);
-    String globPattern = "glob:"+inputPath+"**/*.scss";
+		String globPattern = "glob:"+inputPath+"{**/,}*.scss";
     getLog().debug("Glob = " + globPattern);
     final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
     try {
