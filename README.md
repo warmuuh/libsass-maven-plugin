@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses Jna to interface with C-library.
 
 Changelog:
+* 0.1.1 - scss files can now be placed in inputpath/ directly
 * 0.1.0 - changed artefact group to `com.github.warmuuh`
 
 Installation
@@ -38,7 +39,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version>0.1.0</version>
+         <version>0.1.1</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
