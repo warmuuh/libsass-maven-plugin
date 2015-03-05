@@ -28,7 +28,7 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class CompilationMojo extends AbstractMojo {
 	/**
-	 * Location of the file.
+	 * Location of the generated CSS files.
 	 *
 	 * @parameter expression="${project.build.directory}"
 	 * @required
@@ -43,11 +43,11 @@ public class CompilationMojo extends AbstractMojo {
 	private String inputPath;
 
 	/**
-	 * Location of images.
+	 * Location of images to for use by the image-url Sass function.
 	 *
 	 * @parameter
 	 */
-	private String imgPath;
+	private String imagePath;
 
 	/**
 	 * additional include path, ';'-separated
@@ -56,7 +56,63 @@ public class CompilationMojo extends AbstractMojo {
 	 */
 	private String includePath;
 
-	private final SassCompiler compiler = new SassCompiler();
+	/**
+	 * Output style for the generated css code. One of nested, expanded, compact, compressed
+	 *
+	 * @parameter expression="expanded"
+	 */
+	private SassCompiler.OutputStyle outputStyle;
+
+	/**
+	 * Emit comments in the generated CSS indicating the corresponding source line.
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean generateSourceComments;
+
+	/**
+	 * Generate source map files.
+	 *
+	 * @parameter expression="true"
+	 */
+	private boolean generateSourceMap;
+
+	/**
+	 *
+	 * @parameter expression="${project.build.directory}"
+	 */
+	private String sourceMapOutputPath;
+
+	/**
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean omitSourceMapUrl;
+
+	/**
+	 * TODO: not sure what this does
+	 * @parameter expression="false"
+	 */
+	private boolean embedSourceMap;
+
+	/**
+	 * TODO: not sure what this does
+	 * @parameter expression="false"
+	 */
+	private boolean embedSourceMapContents;
+
+	/**
+	 *
+	 * @parameter expression="scss"
+	 */
+	private SassCompiler.InputSyntax inputSyntax;
+
+	/**
+	 * @parameter expression="5"
+	 */
+	private int precision;
+
+	private SassCompiler compiler;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		inputPath = inputPath.replaceAll("\\\\", "/");
@@ -67,6 +123,9 @@ public class CompilationMojo extends AbstractMojo {
 		final Path root = Paths.get(inputPath);
 		String globPattern = "glob:" + inputPath + "{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
+
+		compiler = initCompiler();
+
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
 		try {
 			Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
@@ -90,21 +149,35 @@ public class CompilationMojo extends AbstractMojo {
 		}
 	}
 
-	private void processFile(final Path root, Path file)
-			throws FileNotFoundException, IOException {
+	private SassCompiler initCompiler() {
+		SassCompiler compiler = new SassCompiler();
+		compiler.setEmbedSourceMap(this.embedSourceMap);
+		compiler.setEmbedSourceMapContents(this.embedSourceMapContents);
+		compiler.setGenerateSourceComments(this.generateSourceComments);
+		compiler.setGenerateSourceMap(this.generateSourceMap);
+		compiler.setImagePath(this.imagePath);
+		compiler.setIncludePaths(this.includePath);
+		compiler.setInputSyntax(this.inputSyntax);
+		compiler.setOmitSourceMapUrl(this.omitSourceMapUrl);
+		compiler.setOutputStyle(this.outputStyle);
+		compiler.setPrecision(this.precision);
+		// FIXME: this is probably incorrect
+		compiler.setSourceMapPathPrefix(this.sourceMapOutputPath);
+		return compiler;
+	}
+
+	private void processFile(final Path root, Path file) throws IOException {
 		getLog().debug("Processing File " + file);
 		Path relPath = root.relativize(file);
 		String outputFile = outputPath + File.separator + relPath.toString();
 		outputFile = outputFile.substring(0, outputFile.lastIndexOf(".")) + ".css";
-		convertFile(file.toString(), includePath, imgPath, outputFile);
+		convertFile(file.toString(), outputFile);
 	}
 
-	private void convertFile(String inputFile, String includePath,
-			String imgPath, String outputFile) throws FileNotFoundException,
-			IOException {
+	private void convertFile(String inputFile, String outputFile) throws IOException {
 		String content;
 		try {
-			content = compiler.compileFile(inputFile, includePath, imgPath);
+			content = compiler.compileFile(inputFile);
 		}
 		catch (SassCompilationException e) {
 			getLog().error(e.getMessage());
@@ -117,7 +190,7 @@ public class CompilationMojo extends AbstractMojo {
 		writeContentToFile(outputFile, content);
 	}
 
-	private void writeContentToFile(String outputFile, String content) throws IOException, FileNotFoundException {
+	private void writeContentToFile(String outputFile, String content) throws IOException {
 		File f = new File(outputFile);
 		f.getParentFile().mkdirs();
 		f.createNewFile();
