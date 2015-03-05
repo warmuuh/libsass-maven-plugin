@@ -19,6 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Compilation of all scss files from inputpath to outputpath using includePaths
@@ -133,6 +134,13 @@ public class CompilationMojo extends AbstractMojo {
 	 */
 	private int precision;
 
+	/**
+	 * @parameter expression="${project}"
+	 * @required
+	 * @readonly
+	 */
+	protected MavenProject project;
+
 	private SassCompiler compiler;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -172,16 +180,16 @@ public class CompilationMojo extends AbstractMojo {
 	}
 
 	private void validateConfig() {
-		if(!generateSourceMap){
-			if(embedSourceMapInCSS){
+		if (!generateSourceMap) {
+			if (embedSourceMapInCSS) {
 				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
 			}
-			if(embedSourceContentsInSourceMap){
+			if (embedSourceContentsInSourceMap) {
 				getLog().warn("embedSourceContentsInSourceMap=true is ignored. Cause: generateSourceMap=false");
 			}
 		}
-		if(outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested){
-			getLog().warn("outputStyle=" + outputStyle + " is ignored. Cause: libsass 3.1 only supports compressed and nested");
+		if (outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested) {
+			getLog().warn("outputStyle=" + outputStyle + " is replaced by nested. Cause: libsass 3.1 only supports compressed and nested");
 		}
 	}
 
@@ -197,25 +205,27 @@ public class CompilationMojo extends AbstractMojo {
 		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);
 		compiler.setOutputStyle(this.outputStyle);
 		compiler.setPrecision(this.precision);
-		// FIXME: this is probably incorrect
-		compiler.setSourceMapPathPrefix(this.sourceMapOutputPath);
 		return compiler;
 	}
 
-	private void processFile(final Path root, Path file) throws IOException {
-		getLog().debug("Processing File " + file);
-		Path relPath = root.relativize(file);
-		String outputFile = outputPath + File.separator + relPath.toString();
-		outputFile = outputFile.substring(0, outputFile.lastIndexOf(".")) + ".css";
-		convertFile(file.toString(), outputFile);
-	}
+	private void processFile(Path inputRootPath, Path inputFilePath) throws IOException {
+		getLog().debug("Processing File " + inputFilePath);
 
-	private void convertFile(String inputFile, String outputFile) throws IOException {
-		String content;
+		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
+		Path outputRootPath = this.outputPath.toPath();
+		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
+		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
+		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
+
+
+		SassCompilerOutput out;
 		try {
-			SassCompilerOutput out = compiler.compileFile(inputFile);
-			content = out.getCssOutput();
-			// FIXME: sourcemap is not generated
+			out = compiler.compileFile( //
+					project.getBasedir().toPath().relativize(inputFilePath).toString(), //
+					project.getBasedir().toPath().relativize(outputFilePath).toString(), //
+					project.getBasedir().toPath().relativize(sourceMapOutputPath).toString() //
+			);
 		}
 		catch (SassCompilationException e) {
 			getLog().error(e.getMessage());
@@ -225,15 +235,19 @@ public class CompilationMojo extends AbstractMojo {
 
 		getLog().debug("Compilation finished.");
 
-		writeContentToFile(outputFile, content);
+		writeContentToFile(outputFilePath, out.getCssOutput());
+		if (out.getSourceMapOutput() != null) {
+			writeContentToFile(sourceMapOutputPath, out.getSourceMapOutput());
+		}
 	}
 
-	private void writeContentToFile(String outputFile, String content) throws IOException {
-		File f = new File(outputFile);
+	private void writeContentToFile(Path outputFilePath, String content) throws IOException {
+		File f = outputFilePath.toFile();
 		f.getParentFile().mkdirs();
 		f.createNewFile();
+
 		FileOutputStream fos = new FileOutputStream(f);
-		fos.write(content.getBytes());
+		fos.write(content.getBytes()); // FIXME: potential problem here: What is the expected encoding of the output?
 		fos.flush();
 		fos.close();
 		getLog().debug("Written to: " + f);

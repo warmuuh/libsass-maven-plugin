@@ -24,7 +24,6 @@ public class SassCompilerTest {
 	@Before
 	public void initCompiler(){
 		compiler = new SassCompiler();
-		compiler.setSourceMapPathPrefix("");
 		compiler.setPrecision(5);
 		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
 		compiler.setOmitSourceMappingURL(false);
@@ -112,7 +111,7 @@ public class SassCompilerTest {
 	}
 
 	private void compile(String file) throws Exception {
-		out = compiler.compileFile(getClass().getResource(file).getFile());
+		out = compiler.compileFile(getClass().getResource(file).getFile(), "prout", "denver");
 	}
 
 	private void assertCssContains(String expected){

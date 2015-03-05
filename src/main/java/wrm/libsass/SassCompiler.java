@@ -18,18 +18,25 @@ public class SassCompiler {
 	private OutputStyle outputStyle;
 	private boolean generateSourceComments;
 	private boolean generateSourceMap;
-	private String sourceMapPathPrefix;
 	private boolean omitSourceMappingURL;
 	private boolean embedSourceMapInCSS;
 	private boolean embedSourceContentsInSourceMap;
 	private SassCompiler.InputSyntax inputSyntax;
 	private int precision;
 
-	public SassCompilerOutput compileFile(String inputFile) throws SassCompilationException {
+	/**
+	 * All paths passed to this method must be relative to the same directory.
+	 */
+	public SassCompilerOutput compileFile(
+			String inputPath, //
+			String outputPath, //
+			String sourceMapPath //
+
+	) throws SassCompilationException {
 		sass_file_context ctx = null;
 		try {
 			ctx = SASS.sass_new_file_context();
-			setOptions(ctx, inputFile);
+			setOptions(ctx, inputPath, outputPath, sourceMapPath);
 
 			SASS.sass_compile_file(ctx);
 
@@ -43,7 +50,7 @@ public class SassCompiler {
 
 			String cssOutput = ctx.output_string.getString(0);
 			String sourceMapOutput = null;
-			if(ctx.source_map_string != null && ctx.source_map_string.getString(0) != null){
+			if (ctx.source_map_string != null && ctx.source_map_string.getString(0) != null) {
 				sourceMapOutput = ctx.source_map_string.getString(0);
 			}
 
@@ -77,15 +84,20 @@ public class SassCompiler {
 		return mem;
 	}
 
-	private void setOptions(sass_file_context ctx, String inputFile) {
+	private void setOptions( //
+			sass_file_context ctx, //
+			String inputPathAbsolute, //
+			String outputPathRelativeToInput, //
+			String sourceMapPathRelativeToInput //
+	) {
 
-		String allIncludePaths = new File(inputFile).getParent();
+		String allIncludePaths = new File(inputPathAbsolute).getParent();
 		if (this.includePaths != null) {
 			allIncludePaths = this.includePaths + File.pathSeparator + allIncludePaths;
 		}
 
-		ctx.input_path = str(inputFile);
-		ctx.output_path = null; // FIXME: is that correct, seems like the source map back references would be wrong ?
+		ctx.input_path = str(inputPathAbsolute);
+		ctx.output_path = str(outputPathRelativeToInput);
 		ctx.options.include_paths = str(allIncludePaths);
 		ctx.options.image_path = str(this.imagePath);
 		ctx.options.source_comments = this.generateSourceComments ? (byte) 1 : 0;
@@ -94,9 +106,7 @@ public class SassCompiler {
 		ctx.options.precision = this.precision;
 
 		if (this.generateSourceMap) {
-			// FIXME: there is a better way to do this...
-			String inputFileName = new File(inputFile).getParent();
-			ctx.options.source_map_file = str(sourceMapPathPrefix + "/" + inputFileName + ".map");
+			ctx.options.source_map_file = str(sourceMapPathRelativeToInput);
 			ctx.options.source_map_contents = this.embedSourceContentsInSourceMap ? (byte) 1 : 0;
 			ctx.options.source_map_embed = this.embedSourceMapInCSS ? (byte) 1 : 0;
 			ctx.options.omit_source_map_url = this.omitSourceMappingURL ? (byte) 1 : 0;
@@ -147,10 +157,6 @@ public class SassCompiler {
 
 	public void setPrecision(final int precision) {
 		this.precision = precision;
-	}
-
-	public void setSourceMapPathPrefix(final String sourceMapPathPrefix) {
-		this.sourceMapPathPrefix = sourceMapPathPrefix;
 	}
 
 	public static enum OutputStyle {
