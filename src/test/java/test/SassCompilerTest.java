@@ -1,11 +1,15 @@
 package test;
 
 import wrm.libsass.SassCompiler;
+import wrm.libsass.SassCompilerOutput;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -16,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 public class SassCompilerTest {
 
 	private SassCompiler compiler;
+	private SassCompilerOutput out;
 
 	@Before
 	public void initCompiler(){
@@ -33,19 +38,97 @@ public class SassCompilerTest {
 		compiler.setIncludePaths(null);
 	}
 
-	/**
-	 * Tests {@link SassCompiler#compileFile(String)}.
-	 */
 	@Test
-	public void testCompileFile() throws Exception {
+	public void testWithDefaultSettings() throws Exception {
+		compile("/test.scss");
 
-		String out = compiler.compileFile(getClass().getResource("/test.scss").getFile());
+		assertCssContains("font: 100% Helvetica, sans-serif");
+		assertCssContains("color: #333");
+		assertCssContains("margin: 0");
+	}
 
-		System.out.println(out);
+	@Test
+	public void testWithOmitSourceMapUrlTrue() throws Exception {
+		compiler.setOmitSourceMapUrl(true);
+		compiler.setGenerateSourceMap(true);
+		compile("/test.scss");
 
-		assertTrue("wrong CSS output", out.contains("font: 100% Helvetica, sans-serif"));
-		assertTrue("wrong CSS output", out.contains("color: #333"));
+		assertCssDoesNotContain("/*# sourceMappingURL=");
+		assertNotNull(out.getSourceMapOutput());
+	}
 
-		assertTrue("wrong CSS output", out.contains("margin: 0"));
+	@Test
+	public void testWithOmitSourceMapUrlFalse() throws Exception {
+		compiler.setOmitSourceMapUrl(false);
+		compiler.setGenerateSourceMap(true);
+		compile("/test.scss");
+
+		assertCssContains("/*# sourceMappingURL=");
+		assertNotNull(out.getSourceMapOutput());
+	}
+
+	@Test
+	public void testWithOutputStyleExpanded() throws Exception {
+		// Warning: As of Libsass 3.1, expanded is the same as nested
+		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
+		compile("/test.scss");
+
+		assertCssContains("* {\n  margin: 0; }\n");
+	}
+
+	@Test
+	public void testWithOutputStyleNested() throws Exception {
+		compiler.setOutputStyle(SassCompiler.OutputStyle.nested);
+		compile("/test.scss");
+
+		assertCssContains("* {\n  margin: 0; }\n");
+	}
+
+	@Test
+	public void testWithOutputStyleCompressed() throws Exception {
+		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compile("/test.scss");
+
+		assertCssContains("*{margin:0}body{font:100% Helvetica,sans-serif;color:#333}");
+	}
+
+	@Test
+	public void testWithOutputStyleCompact() throws Exception {
+		// Warning: As of Libsass 3.1, compact is the same as nested
+		compiler.setOutputStyle(SassCompiler.OutputStyle.compact);
+		compile("/test.scss");
+
+		assertCssContains("* {\n  margin: 0; }\n");
+	}
+
+	@Test
+	public void testWithGenerateSourceMapFalse() throws Exception {
+		compiler.setGenerateSourceMap(false);
+		compiler.setEmbedSourceMapContents(true);
+		compiler.setOmitSourceMapUrl(false);
+		compile("/test.scss");
+
+		assertNull(out.getSourceMapOutput());
+		assertCssDoesNotContain("/*# sourceMappingURL=");
+	}
+
+	private void compile(String file) throws Exception {
+		out = compiler.compileFile(getClass().getResource(file).getFile());
+	}
+
+	private void assertCssContains(String expected){
+		assertTrue("Generated CSS does not contain: " + expected + "\n" + out.getCssOutput(), out.getCssOutput().contains(expected));
+	}
+
+	private void assertCssDoesNotContain(String unwanted){
+		assertFalse("Generated CSS contains: " + unwanted + "\n" + out.getCssOutput(), out.getCssOutput().contains(unwanted));
+	}
+
+	private void assertMapContains(String expected){
+		assertTrue("Generated SourceMap does not contain: " + expected + "\n" + out.getSourceMapOutput(), out.getSourceMapOutput().contains(expected));
+	}
+
+	private void assertMapDoesNotContain(String unwanted){
+		assertFalse("Generated SourceMap contains: " + unwanted + "\n" + out.getSourceMapOutput(), out.getSourceMapOutput().contains(unwanted));
 	}
 }

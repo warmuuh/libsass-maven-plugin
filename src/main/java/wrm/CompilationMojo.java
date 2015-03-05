@@ -2,6 +2,7 @@ package wrm;
 
 import wrm.libsass.SassCompilationException;
 import wrm.libsass.SassCompiler;
+import wrm.libsass.SassCompilerOutput;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -115,6 +116,9 @@ public class CompilationMojo extends AbstractMojo {
 	private SassCompiler compiler;
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		validateConfig();
+		compiler = initCompiler();
+
 		inputPath = inputPath.replaceAll("\\\\", "/");
 
 		getLog().debug("Input Path=" + inputPath);
@@ -123,8 +127,6 @@ public class CompilationMojo extends AbstractMojo {
 		final Path root = Paths.get(inputPath);
 		String globPattern = "glob:" + inputPath + "{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
-
-		compiler = initCompiler();
 
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
 		try {
@@ -146,6 +148,20 @@ public class CompilationMojo extends AbstractMojo {
 		}
 		catch (IOException e) {
 			throw new MojoExecutionException("Failed", e);
+		}
+	}
+
+	private void validateConfig() {
+		if(!generateSourceMap){
+			if(embedSourceMap){
+				getLog().warn("embedSourceMap=true is ignored. Cause: generateSourceMap=false");
+			}
+			if(embedSourceMapContents){
+				getLog().warn("embedSourceMapContents=true is ignored. Cause: generateSourceMap=false");
+			}
+		}
+		if(outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested){
+			getLog().warn("outputStyle=" + outputStyle + " is ignored. Cause: libsass 3.1 only supports compressed and nested");
 		}
 	}
 
@@ -177,7 +193,9 @@ public class CompilationMojo extends AbstractMojo {
 	private void convertFile(String inputFile, String outputFile) throws IOException {
 		String content;
 		try {
-			content = compiler.compileFile(inputFile);
+			SassCompilerOutput out = compiler.compileFile(inputFile);
+			content = out.getCssOutput();
+			// FIXME: sourcemap is not generated
 		}
 		catch (SassCompilationException e) {
 			getLog().error(e.getMessage());

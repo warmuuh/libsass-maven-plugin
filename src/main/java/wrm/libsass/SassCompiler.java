@@ -25,7 +25,7 @@ public class SassCompiler {
 	private SassCompiler.InputSyntax inputSyntax;
 	private int precision;
 
-	public String compileFile(String inputFile) throws SassCompilationException {
+	public SassCompilerOutput compileFile(String inputFile) throws SassCompilationException {
 		sass_file_context ctx = null;
 		try {
 			ctx = SASS.sass_new_file_context();
@@ -41,9 +41,13 @@ public class SassCompiler {
 				throw new SassCompilationException("libsass returned null");
 			}
 
-			String output = ctx.output_string.getString(0);
+			String cssOutput = ctx.output_string.getString(0);
+			String sourceMapOutput = null;
+			if(ctx.source_map_string != null && ctx.source_map_string.getString(0) != null){
+				sourceMapOutput = ctx.source_map_string.getString(0);
+			}
 
-			return output;
+			return new SassCompilerOutput(cssOutput, sourceMapOutput);
 		}
 		finally {
 			try {
@@ -81,7 +85,7 @@ public class SassCompiler {
 		}
 
 		ctx.input_path = str(inputFile);
-		ctx.output_path = null; // FIXME: is that correct, seems like the sourcemap would be wrong ?
+		ctx.output_path = null; // FIXME: is that correct, seems like the source map back references would be wrong ?
 		ctx.options.include_paths = str(allIncludePaths);
 		ctx.options.image_path = str(this.imagePath);
 		ctx.options.source_comments = this.generateSourceComments ? (byte) 1 : 0;
@@ -93,7 +97,6 @@ public class SassCompiler {
 			// FIXME: there is a better way to do this...
 			String inputFileName = new File(inputFile).getParent();
 			ctx.options.source_map_file = str(sourceMapPathPrefix + "/" + inputFileName + ".map");
-
 			ctx.options.source_map_contents = this.embedSourceMapContents ? (byte) 1 : 0;
 			ctx.options.source_map_embed = this.embedSourceMap ? (byte) 1 : 0;
 			ctx.options.omit_source_map_url = this.omitSourceMapUrl ? (byte) 1 : 0;
