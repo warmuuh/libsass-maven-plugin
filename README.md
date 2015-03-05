@@ -23,7 +23,7 @@ either add on-demand-repository (using https://jitpack.io/)
 or install locally
 
 ```
-git clone https://github.com/warmuuh/libsass-maven-plugin.git
+git clone --recursive https://github.com/warmuuh/libsass-maven-plugin.git
 cd libsass-maven-plugin
 mvn install
 ```
