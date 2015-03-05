@@ -73,94 +73,94 @@ Configuration Elements
   <tbody>
     <tr>
       <td>outputPath</td>
-      <td>`${project.build.directory}`</td>
+      <td><code>${project.build.directory}</code></td>
       <td>The directory in which the compiled CSS files will be placed.</td>
     </tr>
     <tr>
       <td>inputPath</td>
-      <td>`src/main/sass`</td>
+      <td><code>src/main/sass</code></td>
       <td>
-        The directory from which the source `.scss` files will be read. This directory will be
-        traversed recursively, and all `.scss` files found in this directory or subdirectories
+        The directory from which the source <code>.scss</code> files will be read. This directory will be
+        traversed recursively, and all <code>.scss</code> files found in this directory or subdirectories
         will be compiled.
       </td>
     </tr>
     <tr>
       <td>imagePath</td>
-      <td>`null`</td>
+      <td><code>null</code></td>
       <td>Location of images to for use by the image-url Sass function.</td>
     </tr>
     <tr>
       <td>includePath</td>
-      <td>`null`</td>
+      <td><code>null</code></td>
       <td>Additional include path, ';'-separated</td>
     </tr>
     <tr>
       <td>outputStyle</td>
-      <td>expanded</td>
+      <td><code>expanded</code></td>
       <td>
-         Output style for the generlookated css code. One of `nested`, `expanded`,
-         `compact`, `compressed`. Note that as of libsass 3.1, `expanded`
-         and `compact` result in the same output as `nested`.
+         Output style for the generlookated css code. One of <code>nested</code>, <code>expanded</code>,
+         <code>compact</code>, <code>compressed</code>. Note that as of libsass 3.1, <code>expanded</code>
+         and <code>compact</code> result in the same output as <code>nested</code>.
       </td>
     </tr>
     <tr>
       <td>generateSourceComments</td>
-      <td>`false`</td>
+      <td><code>false</code></td>
       <td>
          Emit comments in the compiled CSS indicating the corresponding source line. The default
-         value is `false`.
+         value is <code>false</code>.
       </td>
     </tr>
     <tr>
       <td>generateSourceMap</td>
-      <td>`true`</td>
+      <td><code>true</code></td>
       <td>
         Generate source map files. The generated source map files will be placed in the directory
-        specified by `sourceMapOutputPath`.
+        specified by <code>sourceMapOutputPath</code>.
       </td>
     </tr>
     <tr>
       <td>sourceMapOutputPath</td>
-      <td>`${project.build.directory}`</td>
+      <td><code>${project.build.directory}</code></td>
       <td>
         The directory in which the source map files that correspond to the compiled CSS will be placed
       </td>
     </tr>
     <tr>
       <td>omitSourceMapingURL</td>
-      <td>`false`</td>
+      <td><code>false</code></td>
       <td>
-        Prevents the generation of the `sourceMappingURL` special comment as the last
+        Prevents the generation of the <code>sourceMappingURL</code> special comment as the last
         line of the compiled CSS.
       </td>
     </tr>
     <tr>
       <td>embedSourceMapInCSS</td>
-      <td>`false`</td>
+      <td><code>false</code></td>
       <td>
         Embeds the whole source map data directly into the compiled CSS file by transforming
-        `sourceMappingURL` into a data URI.
+        <code>sourceMappingURL</code> into a data URI.
       </td>
     </tr>
     <tr>
       <td>embedSourceContentsInSourceMap</td>
-      <td>`false`</td>
+      <td><code>false</code></td>
       <td>
-       Embeds the contents of the source `.scss` files in the source map file instead of the
+       Embeds the contents of the source <code>.scss</code> files in the source map file instead of the
        paths to those files
       </td>
     </tr>
     <tr>
       <td>inputSyntax</td>
-      <td>`scss`</td>
+      <td><code>scss</code></td>
       <td>
-       Switches the input syntax used by the files to either `sass` or `scss`.
+       Switches the input syntax used by the files to either <code>sass</code> or <code>scss</code>.
       </td>
     </tr>
     <tr>
       <td>precision</td>
-      <td>`5`</td>
+      <td><code>5</code></td>
       <td>
        Precision for fractional numbers
       </td>
