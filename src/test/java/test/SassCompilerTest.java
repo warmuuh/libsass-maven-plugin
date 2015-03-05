@@ -3,7 +3,6 @@ package test;
 import wrm.libsass.SassCompiler;
 import wrm.libsass.SassCompilerOutput;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,10 +27,10 @@ public class SassCompilerTest {
 		compiler.setSourceMapPathPrefix("");
 		compiler.setPrecision(5);
 		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
-		compiler.setOmitSourceMapUrl(false);
+		compiler.setOmitSourceMappingURL(false);
 		compiler.setInputSyntax(SassCompiler.InputSyntax.scss);
-		compiler.setEmbedSourceMap(false);
-		compiler.setEmbedSourceMapContents(false);
+		compiler.setEmbedSourceMapInCSS(false);
+		compiler.setEmbedSourceContentsInSourceMap(false);
 		compiler.setGenerateSourceComments(false);
 		compiler.setGenerateSourceMap(true);
 		compiler.setImagePath(null);
@@ -49,7 +48,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOmitSourceMapUrlTrue() throws Exception {
-		compiler.setOmitSourceMapUrl(true);
+		compiler.setOmitSourceMappingURL(true);
 		compiler.setGenerateSourceMap(true);
 		compile("/test.scss");
 
@@ -59,7 +58,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOmitSourceMapUrlFalse() throws Exception {
-		compiler.setOmitSourceMapUrl(false);
+		compiler.setOmitSourceMappingURL(false);
 		compiler.setGenerateSourceMap(true);
 		compile("/test.scss");
 
@@ -104,8 +103,8 @@ public class SassCompilerTest {
 	@Test
 	public void testWithGenerateSourceMapFalse() throws Exception {
 		compiler.setGenerateSourceMap(false);
-		compiler.setEmbedSourceMapContents(true);
-		compiler.setOmitSourceMapUrl(false);
+		compiler.setEmbedSourceContentsInSourceMap(true);
+		compiler.setOmitSourceMappingURL(false);
 		compile("/test.scss");
 
 		assertNull(out.getSourceMapOutput());

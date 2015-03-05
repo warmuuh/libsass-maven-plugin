@@ -5,7 +5,6 @@ import wrm.libsass.SassCompiler;
 import wrm.libsass.SassCompilerOutput;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -29,7 +28,8 @@ import org.apache.maven.plugin.MojoFailureException;
  */
 public class CompilationMojo extends AbstractMojo {
 	/**
-	 * Location of the generated CSS files.
+	 * The directory in which the compiled CSS files will be placed. The default value is
+	 * <tt>${project.build.directory}</tt>
 	 *
 	 * @parameter expression="${project.build.directory}"
 	 * @required
@@ -37,78 +37,98 @@ public class CompilationMojo extends AbstractMojo {
 	private File outputPath;
 
 	/**
-	 * Location of source files.
+	 * The directory from which the source .scss files will be read. This directory will be
+	 * traversed recursively, and all .scss files found in this directory or subdirectories
+	 * will be compiled. The default value is <tt>src/main/sass</tt>
 	 *
 	 * @parameter expression="src/main/sass"
 	 */
 	private String inputPath;
 
 	/**
-	 * Location of images to for use by the image-url Sass function.
+	 * Location of images to for use by the image-url Sass function. The default value is
+	 * <tt>null</tt>.
 	 *
 	 * @parameter
 	 */
 	private String imagePath;
 
 	/**
-	 * additional include path, ';'-separated
+	 * Additional include path, ';'-separated. The default value is <tt>null</tt>
 	 *
 	 * @parameter
 	 */
 	private String includePath;
 
 	/**
-	 * Output style for the generated css code. One of nested, expanded, compact, compressed
+	 * Output style for the generated css code. One of <tt>nested</tt>, <tt>expanded</tt>,
+	 * <tt>compact</tt>, <tt>compressed</tt>. Note that as of libsass 3.1, <tt>expanded</tt>
+	 * and <tt>compact</tt> are the same as <tt>nested</tt>. The default value is
+	 * <tt>expanded</tt>.
 	 *
 	 * @parameter expression="expanded"
 	 */
 	private SassCompiler.OutputStyle outputStyle;
 
 	/**
-	 * Emit comments in the generated CSS indicating the corresponding source line.
+	 * Emit comments in the compiled CSS indicating the corresponding source line. The default
+	 * value is <tt>false</tt>
 	 *
 	 * @parameter expression="false"
 	 */
 	private boolean generateSourceComments;
 
 	/**
-	 * Generate source map files.
+	 * Generate source map files. The generated source map files will be placed in the directory
+	 * specified by <tt>sourceMapOutputPath</tt>. The default value is <tt>true</tt>.
 	 *
 	 * @parameter expression="true"
 	 */
 	private boolean generateSourceMap;
 
 	/**
+	 * The directory in which the source map files that correspond to the compiled CSS will be
+	 * placed. The default value is <tt>${project.build.directory}</tt>
 	 *
 	 * @parameter expression="${project.build.directory}"
 	 */
 	private String sourceMapOutputPath;
 
 	/**
+	 * Prevents the generation of the <tt>sourceMappingURL</tt> special comment as the last
+	 * line of the compiled CSS. The default value is <tt>false</tt>.
 	 *
 	 * @parameter expression="false"
 	 */
-	private boolean omitSourceMapUrl;
+	private boolean omitSourceMapingURL;
 
 	/**
-	 * TODO: not sure what this does
+	 * Embeds the whole source map data directly into the compiled CSS file by transforming
+	 * <tt>sourceMappingURL</tt> into a data URI. The default value is <tt>false</tt>.
+	 *
 	 * @parameter expression="false"
 	 */
-	private boolean embedSourceMap;
+	private boolean embedSourceMapInCSS;
 
 	/**
-	 * TODO: not sure what this does
+	 * Embeds the contents of the source .scss files in the source map file instead of the
+	 * paths to those files. The default value is <tt>false</tt>
+	 *
 	 * @parameter expression="false"
 	 */
-	private boolean embedSourceMapContents;
+	private boolean embedSourceContentsInSourceMap;
 
 	/**
+	 * Switches the input syntax used by the files to either <tt>sass</tt> or <tt>scss</tt>.
+	 * The default value is <tt>scss</tt>.
 	 *
 	 * @parameter expression="scss"
 	 */
 	private SassCompiler.InputSyntax inputSyntax;
 
 	/**
+	 * Precision for fractional numbers. The default value is <tt>5</tt>.
+	 *
 	 * @parameter expression="5"
 	 */
 	private int precision;
@@ -153,11 +173,11 @@ public class CompilationMojo extends AbstractMojo {
 
 	private void validateConfig() {
 		if(!generateSourceMap){
-			if(embedSourceMap){
-				getLog().warn("embedSourceMap=true is ignored. Cause: generateSourceMap=false");
+			if(embedSourceMapInCSS){
+				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
 			}
-			if(embedSourceMapContents){
-				getLog().warn("embedSourceMapContents=true is ignored. Cause: generateSourceMap=false");
+			if(embedSourceContentsInSourceMap){
+				getLog().warn("embedSourceContentsInSourceMap=true is ignored. Cause: generateSourceMap=false");
 			}
 		}
 		if(outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested){
@@ -167,14 +187,14 @@ public class CompilationMojo extends AbstractMojo {
 
 	private SassCompiler initCompiler() {
 		SassCompiler compiler = new SassCompiler();
-		compiler.setEmbedSourceMap(this.embedSourceMap);
-		compiler.setEmbedSourceMapContents(this.embedSourceMapContents);
+		compiler.setEmbedSourceMapInCSS(this.embedSourceMapInCSS);
+		compiler.setEmbedSourceContentsInSourceMap(this.embedSourceContentsInSourceMap);
 		compiler.setGenerateSourceComments(this.generateSourceComments);
 		compiler.setGenerateSourceMap(this.generateSourceMap);
 		compiler.setImagePath(this.imagePath);
 		compiler.setIncludePaths(this.includePath);
 		compiler.setInputSyntax(this.inputSyntax);
-		compiler.setOmitSourceMapUrl(this.omitSourceMapUrl);
+		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);
 		compiler.setOutputStyle(this.outputStyle);
 		compiler.setPrecision(this.precision);
 		// FIXME: this is probably incorrect

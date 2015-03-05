@@ -19,9 +19,9 @@ public class SassCompiler {
 	private boolean generateSourceComments;
 	private boolean generateSourceMap;
 	private String sourceMapPathPrefix;
-	private boolean omitSourceMapUrl;
-	private boolean embedSourceMap;
-	private boolean embedSourceMapContents;
+	private boolean omitSourceMappingURL;
+	private boolean embedSourceMapInCSS;
+	private boolean embedSourceContentsInSourceMap;
 	private SassCompiler.InputSyntax inputSyntax;
 	private int precision;
 
@@ -97,9 +97,9 @@ public class SassCompiler {
 			// FIXME: there is a better way to do this...
 			String inputFileName = new File(inputFile).getParent();
 			ctx.options.source_map_file = str(sourceMapPathPrefix + "/" + inputFileName + ".map");
-			ctx.options.source_map_contents = this.embedSourceMapContents ? (byte) 1 : 0;
-			ctx.options.source_map_embed = this.embedSourceMap ? (byte) 1 : 0;
-			ctx.options.omit_source_map_url = this.omitSourceMapUrl ? (byte) 1 : 0;
+			ctx.options.source_map_contents = this.embedSourceContentsInSourceMap ? (byte) 1 : 0;
+			ctx.options.source_map_embed = this.embedSourceMapInCSS ? (byte) 1 : 0;
+			ctx.options.omit_source_map_url = this.omitSourceMappingURL ? (byte) 1 : 0;
 
 		} else {
 			ctx.options.source_map_file = null;
@@ -109,12 +109,12 @@ public class SassCompiler {
 		}
 	}
 
-	public void setEmbedSourceMap(final boolean embedSourceMap) {
-		this.embedSourceMap = embedSourceMap;
+	public void setEmbedSourceMapInCSS(final boolean embedSourceMapInCSS) {
+		this.embedSourceMapInCSS = embedSourceMapInCSS;
 	}
 
-	public void setEmbedSourceMapContents(final boolean embedSourceMapContents) {
-		this.embedSourceMapContents = embedSourceMapContents;
+	public void setEmbedSourceContentsInSourceMap(final boolean embedSourceContentsInSourceMap) {
+		this.embedSourceContentsInSourceMap = embedSourceContentsInSourceMap;
 	}
 
 	public void setGenerateSourceComments(final boolean generateSourceComments) {
@@ -137,8 +137,8 @@ public class SassCompiler {
 		this.inputSyntax = inputSyntax;
 	}
 
-	public void setOmitSourceMapUrl(final boolean omitSourceMapUrl) {
-		this.omitSourceMapUrl = omitSourceMapUrl;
+	public void setOmitSourceMappingURL(final boolean omitSourceMappingURL) {
+		this.omitSourceMappingURL = omitSourceMappingURL;
 	}
 
 	public void setOutputStyle(final OutputStyle outputStyle) {
