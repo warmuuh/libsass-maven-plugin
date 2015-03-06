@@ -15,6 +15,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -157,12 +158,17 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Glob = " + globPattern);
 
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
+		final AtomicInteger errorCount = new AtomicInteger(0);
+		final AtomicInteger fileCount = new AtomicInteger(0);
 		try {
 			Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 					if (matcher.matches(file) && !file.getFileName().toString().startsWith("_")) {
-						processFile(root, file);
+						fileCount.incrementAndGet();
+						if(!processFile(root, file)){
+							errorCount.incrementAndGet();
+						}
 					}
 
 					return FileVisitResult.CONTINUE;
@@ -176,6 +182,11 @@ public class CompilationMojo extends AbstractMojo {
 		}
 		catch (IOException e) {
 			throw new MojoExecutionException("Failed", e);
+		}
+
+		getLog().info("Compiled " + fileCount + " files");
+		if(errorCount.get() > 0){
+			throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
 		}
 	}
 
@@ -208,7 +219,7 @@ public class CompilationMojo extends AbstractMojo {
 		return compiler;
 	}
 
-	private void processFile(Path inputRootPath, Path inputFilePath) throws IOException {
+	private boolean processFile(Path inputRootPath, Path inputFilePath) throws IOException {
 		getLog().debug("Processing File " + inputFilePath);
 
 		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
@@ -217,6 +228,7 @@ public class CompilationMojo extends AbstractMojo {
 		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
 		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
+		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
 
 		SassCompilerOutput out;
@@ -230,7 +242,7 @@ public class CompilationMojo extends AbstractMojo {
 		catch (SassCompilationException e) {
 			getLog().error(e.getMessage());
 			getLog().debug(e);
-			return;
+			return false;
 		}
 
 		getLog().debug("Compilation finished.");
@@ -239,6 +251,7 @@ public class CompilationMojo extends AbstractMojo {
 		if (out.getSourceMapOutput() != null) {
 			writeContentToFile(sourceMapOutputPath, out.getSourceMapOutput());
 		}
+		return true;
 	}
 
 	private void writeContentToFile(Path outputFilePath, String content) throws IOException {
