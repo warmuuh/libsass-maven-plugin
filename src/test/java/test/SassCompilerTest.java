@@ -110,6 +110,23 @@ public class SassCompilerTest {
 		assertCssDoesNotContain("/*# sourceMappingURL=");
 	}
 
+	@Test
+	public void testDefaultPrecision() throws Exception{
+		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compile("/precision.scss");
+
+		assertCssContains(".something{padding:0 0.8em 0.71429 0.8em}");
+	}
+
+	@Test
+	public void testHighPrecision() throws Exception{
+		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setPrecision(10);
+		compile("/precision.scss");
+
+		assertCssContains(".something{padding:0 0.8em 0.7142857143 0.8em}");
+	}
+
 	private void compile(String file) throws Exception {
 		out = compiler.compileFile(getClass().getResource(file).getFile(), "prout", "denver");
 	}
