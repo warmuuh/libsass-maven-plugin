@@ -12,6 +12,7 @@ Changelog:
 Installation
 -----
 either add on-demand-repository (using https://jitpack.io/)
+** jitpack currently does not support submodules, so this option currently does not work **
 ```
 <pluginRepositories>
     <pluginRepository>
