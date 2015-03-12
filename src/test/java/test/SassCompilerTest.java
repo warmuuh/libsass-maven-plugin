@@ -128,7 +128,8 @@ public class SassCompilerTest {
 	}
 
 	private void compile(String file) throws Exception {
-		out = compiler.compileFile(getClass().getResource(file).getFile(), "prout", "denver");
+		String absolutePath = new java.io.File(getClass().getResource(file).getFile()).getAbsolutePath();
+		out = compiler.compileFile(absolutePath, "prout", "denver");
 	}
 
 	private void assertCssContains(String expected){
