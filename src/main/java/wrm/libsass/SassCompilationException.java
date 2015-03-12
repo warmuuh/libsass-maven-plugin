@@ -24,7 +24,4 @@ public class SassCompilationException extends Exception {
 	public SassCompilationException(Throwable arg0) {
 		super(arg0);
 	}
-
-	
-	
 }

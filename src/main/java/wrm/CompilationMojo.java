@@ -1,7 +1,10 @@
 package wrm;
 
+import wrm.libsass.SassCompilationException;
+import wrm.libsass.SassCompiler;
+import wrm.libsass.SassCompilerOutput;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -12,143 +15,254 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
-
-
-
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-
-import wrm.libsass.SassCompilationException;
-import wrm.libsass.SassCompiler;
-import wrm.libsass.api.LibSassDll;
-import wrm.libsass.api.OutputStyle;
-import wrm.libsass.api.SourceComments;
-import wrm.libsass.api.sass_file_context;
-
-import com.sun.jna.Native;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Compilation of all scss files from inputpath to outputpath using includePaths
  *
  * @goal compile
- * 
  * @phase generate-resources
  */
 public class CompilationMojo extends AbstractMojo {
-	
-	
-	
 	/**
-     * Location of the file.
-     * @parameter expression="${project.build.directory}"
-     * @required
-     */
-    private File outputPath;
+	 * The directory in which the compiled CSS files will be placed. The default value is
+	 * <tt>${project.build.directory}</tt>
+	 *
+	 * @parameter expression="${project.build.directory}"
+	 * @required
+	 */
+	private File outputPath;
 
-
-    /**
-     * Location of source files.
-     * @parameter expression="src/main/sass"
-     */
+	/**
+	 * The directory from which the source .scss files will be read. This directory will be
+	 * traversed recursively, and all .scss files found in this directory or subdirectories
+	 * will be compiled. The default value is <tt>src/main/sass</tt>
+	 *
+	 * @parameter expression="src/main/sass"
+	 */
 	private String inputPath;
 
 	/**
-     * Location of images.
-     * @parameter 
-     */
-	private String imgPath = "";
+	 * Location of images to for use by the image-url Sass function. The default value is
+	 * <tt>null</tt>.
+	 *
+	 * @parameter
+	 */
+	private String imagePath;
 
 	/**
-     * additional include path, ';'-separated
-     * @parameter 
-     */
-	private String includePath = "";
+	 * Additional include path, ';'-separated. The default value is <tt>null</tt>
+	 *
+	 * @parameter
+	 */
+	private String includePath;
 
+	/**
+	 * Output style for the generated css code. One of <tt>nested</tt>, <tt>expanded</tt>,
+	 * <tt>compact</tt>, <tt>compressed</tt>. Note that as of libsass 3.1, <tt>expanded</tt>
+	 * and <tt>compact</tt> are the same as <tt>nested</tt>. The default value is
+	 * <tt>expanded</tt>.
+	 *
+	 * @parameter expression="expanded"
+	 */
+	private SassCompiler.OutputStyle outputStyle;
 
-	
-	
-	private SassCompiler compiler = new SassCompiler();
-    
+	/**
+	 * Emit comments in the compiled CSS indicating the corresponding source line. The default
+	 * value is <tt>false</tt>
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean generateSourceComments;
+
+	/**
+	 * Generate source map files. The generated source map files will be placed in the directory
+	 * specified by <tt>sourceMapOutputPath</tt>. The default value is <tt>true</tt>.
+	 *
+	 * @parameter expression="true"
+	 */
+	private boolean generateSourceMap;
+
+	/**
+	 * The directory in which the source map files that correspond to the compiled CSS will be
+	 * placed. The default value is <tt>${project.build.directory}</tt>
+	 *
+	 * @parameter expression="${project.build.directory}"
+	 */
+	private String sourceMapOutputPath;
+
+	/**
+	 * Prevents the generation of the <tt>sourceMappingURL</tt> special comment as the last
+	 * line of the compiled CSS. The default value is <tt>false</tt>.
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean omitSourceMapingURL;
+
+	/**
+	 * Embeds the whole source map data directly into the compiled CSS file by transforming
+	 * <tt>sourceMappingURL</tt> into a data URI. The default value is <tt>false</tt>.
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean embedSourceMapInCSS;
+
+	/**
+	 * Embeds the contents of the source .scss files in the source map file instead of the
+	 * paths to those files. The default value is <tt>false</tt>
+	 *
+	 * @parameter expression="false"
+	 */
+	private boolean embedSourceContentsInSourceMap;
+
+	/**
+	 * Switches the input syntax used by the files to either <tt>sass</tt> or <tt>scss</tt>.
+	 * The default value is <tt>scss</tt>.
+	 *
+	 * @parameter expression="scss"
+	 */
+	private SassCompiler.InputSyntax inputSyntax;
+
+	/**
+	 * Precision for fractional numbers. The default value is <tt>5</tt>.
+	 *
+	 * @parameter expression="5"
+	 */
+	private int precision;
+
+	/**
+	 * @parameter expression="${project}"
+	 * @required
+	 * @readonly
+	 */
+	protected MavenProject project;
+
+	private SassCompiler compiler;
+
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		validateConfig();
+		compiler = initCompiler();
+
 		inputPath = inputPath.replaceAll("\\\\", "/");
-		
-		getLog().debug("Input Path=" + inputPath); 
-		getLog().debug("Output Path=" + outputPath); 
-		
+
+		getLog().debug("Input Path=" + inputPath);
+		getLog().debug("Output Path=" + outputPath);
+
 		final Path root = Paths.get(inputPath);
-		String globPattern = "glob:"+inputPath+"{**/,}*.scss";
+		String globPattern = "glob:" + inputPath + "{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
+
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
+		final AtomicInteger errorCount = new AtomicInteger(0);
+		final AtomicInteger fileCount = new AtomicInteger(0);
 		try {
 			Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-			    @Override
-			    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-			        if (matcher.matches(file) && !file.getFileName().toString().startsWith("_")) 
-			            processFile(root, file);
-			        
-			        return FileVisitResult.CONTINUE;
-			    }
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (matcher.matches(file) && !file.getFileName().toString().startsWith("_")) {
+						fileCount.incrementAndGet();
+						if(!processFile(root, file)){
+							errorCount.incrementAndGet();
+						}
+					}
 
-			    @Override
-			    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-			        return FileVisitResult.CONTINUE;
-			    }
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
 			});
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new MojoExecutionException("Failed", e);
 		}
-	}
-	
 
-	private void processFile(final Path root, Path file)
-			throws FileNotFoundException, IOException {
-		getLog().debug("Processing File " + file); 
-		Path relPath = root.relativize(file);
-		String outputFile = outputPath + File.separator + relPath.toString();
-		outputFile = outputFile.substring(0, outputFile.lastIndexOf(".")) + ".css";
-		convertFile(file.toString(), includePath, imgPath, outputFile);
+		getLog().info("Compiled " + fileCount + " files");
+		if(errorCount.get() > 0){
+			throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
+		}
 	}
 
+	private void validateConfig() {
+		if (!generateSourceMap) {
+			if (embedSourceMapInCSS) {
+				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
+			}
+			if (embedSourceContentsInSourceMap) {
+				getLog().warn("embedSourceContentsInSourceMap=true is ignored. Cause: generateSourceMap=false");
+			}
+		}
+		if (outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested) {
+			getLog().warn("outputStyle=" + outputStyle + " is replaced by nested. Cause: libsass 3.1 only supports compressed and nested");
+		}
+	}
 
-	private void convertFile(String inputFile, String includePath,
-			String imgPath, String outputFile) throws FileNotFoundException,
-			IOException {
-		String content;
+	private SassCompiler initCompiler() {
+		SassCompiler compiler = new SassCompiler();
+		compiler.setEmbedSourceMapInCSS(this.embedSourceMapInCSS);
+		compiler.setEmbedSourceContentsInSourceMap(this.embedSourceContentsInSourceMap);
+		compiler.setGenerateSourceComments(this.generateSourceComments);
+		compiler.setGenerateSourceMap(this.generateSourceMap);
+		compiler.setImagePath(this.imagePath);
+		compiler.setIncludePaths(this.includePath);
+		compiler.setInputSyntax(this.inputSyntax);
+		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);
+		compiler.setOutputStyle(this.outputStyle);
+		compiler.setPrecision(this.precision);
+		return compiler;
+	}
+
+	private boolean processFile(Path inputRootPath, Path inputFilePath) throws IOException {
+		getLog().debug("Processing File " + inputFilePath);
+
+		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
+		Path outputRootPath = this.outputPath.toPath();
+		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
+		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
+		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
+		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
+
+
+		SassCompilerOutput out;
 		try {
-			content = compiler.compileFile(inputFile, includePath, imgPath);
-		} catch (SassCompilationException e) {
+			out = compiler.compileFile( //
+					project.getBasedir().toPath().relativize(inputFilePath).toString(), //
+					project.getBasedir().toPath().relativize(outputFilePath).toString(), //
+					project.getBasedir().toPath().relativize(sourceMapOutputPath).toString() //
+			);
+		}
+		catch (SassCompilationException e) {
 			getLog().error(e.getMessage());
 			getLog().debug(e);
-			return;
+			return false;
 		}
-		
+
 		getLog().debug("Compilation finished.");
-			
-		writeContentToFile(outputFile, content);
+
+		writeContentToFile(outputFilePath, out.getCssOutput());
+		if (out.getSourceMapOutput() != null) {
+			writeContentToFile(sourceMapOutputPath, out.getSourceMapOutput());
+		}
+		return true;
 	}
 
-
-
-
-	private void writeContentToFile(String outputFile, String content) throws IOException, FileNotFoundException {
-		File f = new File(outputFile);
+	private void writeContentToFile(Path outputFilePath, String content) throws IOException {
+		File f = outputFilePath.toFile();
 		f.getParentFile().mkdirs();
 		f.createNewFile();
+
 		FileOutputStream fos = new FileOutputStream(f);
-		fos.write(content.getBytes());
+		fos.write(content.getBytes()); // FIXME: potential problem here: What is the expected encoding of the output?
 		fos.flush();
 		fos.close();
 		getLog().debug("Written to: " + f);
 	}
-
-	
-
-
-
-
-	
 }
