@@ -11,26 +11,7 @@ Changelog:
 
 Installation
 -----
-either add on-demand-repository (using https://jitpack.io/)
-
-**jitpack currently does not support submodules, so this option currently does not work**
-```
-<pluginRepositories>
-    <pluginRepository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </pluginRepository>
-</pluginRepositories>
-```
-
-or install locally
-
-```
-git clone --recursive https://github.com/warmuuh/libsass-maven-plugin.git
-cd libsass-maven-plugin
-mvn install
-```
-
+libsass-maven-plugin is available on central-repository since version 0.1.2
 
 Usage
 -----
