@@ -153,8 +153,8 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Input Path=" + inputPath);
 		getLog().debug("Output Path=" + outputPath);
 
-		final Path root = Paths.get(inputPath);
-		String globPattern = "glob:" + inputPath + "{**/,}*.scss";
+		final Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
+		String globPattern = "glob:{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
 
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
@@ -223,20 +223,22 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Processing File " + inputFilePath);
 
 		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
+		
 		Path outputRootPath = this.outputPath.toPath();
-		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
 		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+		
+		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
 		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
 
 		SassCompilerOutput out;
 		try {
-			out = compiler.compileFile( //
-					project.getBasedir().toPath().relativize(inputFilePath).toString(), //
-					project.getBasedir().toPath().relativize(outputFilePath).toString(), //
-					project.getBasedir().toPath().relativize(sourceMapOutputPath).toString() //
+			out = compiler.compileFile(
+					inputFilePath.toAbsolutePath().toString(),
+					outputFilePath.toAbsolutePath().toString(),
+					sourceMapOutputPath.toAbsolutePath().toString()
 			);
 		}
 		catch (SassCompilationException e) {
