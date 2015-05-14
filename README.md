@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses Jna to interface with C-library.
 
 Changelog:
+* 0.1.3 - fixed #10 - multi-module projects
 * 0.1.2 - added PR #4, updated to libsass version 3.1 for windows, linux, macos - *thanks to @npiguet, @ogolberg*
 * 0.1.1 - scss files can now be placed in inputpath/ directly
 * 0.1.0 - changed artefact group to `com.github.warmuuh`
