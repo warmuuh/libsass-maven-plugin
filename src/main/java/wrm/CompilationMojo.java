@@ -43,7 +43,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * traversed recursively, and all .scss files found in this directory or subdirectories
 	 * will be compiled. The default value is <tt>src/main/sass</tt>
 	 *
-	 * @parameter expression="src/main/sass"
+	 * @parameter default-value="src/main/sass"
 	 */
 	private String inputPath;
 
@@ -68,7 +68,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * and <tt>compact</tt> are the same as <tt>nested</tt>. The default value is
 	 * <tt>expanded</tt>.
 	 *
-	 * @parameter expression="expanded"
+	 * @parameter default-value="expanded"
 	 */
 	private SassCompiler.OutputStyle outputStyle;
 
@@ -76,7 +76,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * Emit comments in the compiled CSS indicating the corresponding source line. The default
 	 * value is <tt>false</tt>
 	 *
-	 * @parameter expression="false"
+	 * @parameter default-value="false"
 	 */
 	private boolean generateSourceComments;
 
@@ -84,7 +84,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * Generate source map files. The generated source map files will be placed in the directory
 	 * specified by <tt>sourceMapOutputPath</tt>. The default value is <tt>true</tt>.
 	 *
-	 * @parameter expression="true"
+	 * @parameter default-value="true"
 	 */
 	private boolean generateSourceMap;
 
@@ -100,7 +100,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * Prevents the generation of the <tt>sourceMappingURL</tt> special comment as the last
 	 * line of the compiled CSS. The default value is <tt>false</tt>.
 	 *
-	 * @parameter expression="false"
+	 * @parameter default-value="false"
 	 */
 	private boolean omitSourceMapingURL;
 
@@ -108,7 +108,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * Embeds the whole source map data directly into the compiled CSS file by transforming
 	 * <tt>sourceMappingURL</tt> into a data URI. The default value is <tt>false</tt>.
 	 *
-	 * @parameter expression="false"
+	 * @parameter default-value="false"
 	 */
 	private boolean embedSourceMapInCSS;
 
@@ -116,7 +116,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * Embeds the contents of the source .scss files in the source map file instead of the
 	 * paths to those files. The default value is <tt>false</tt>
 	 *
-	 * @parameter expression="false"
+	 * @parameter default-value="false"
 	 */
 	private boolean embedSourceContentsInSourceMap;
 
@@ -124,14 +124,14 @@ public class CompilationMojo extends AbstractMojo {
 	 * Switches the input syntax used by the files to either <tt>sass</tt> or <tt>scss</tt>.
 	 * The default value is <tt>scss</tt>.
 	 *
-	 * @parameter expression="scss"
+	 * @parameter default-value="scss"
 	 */
 	private SassCompiler.InputSyntax inputSyntax;
 
 	/**
 	 * Precision for fractional numbers. The default value is <tt>5</tt>.
 	 *
-	 * @parameter expression="5"
+	 * @parameter default-value="5"
 	 */
 	private int precision;
 
@@ -153,8 +153,8 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Input Path=" + inputPath);
 		getLog().debug("Output Path=" + outputPath);
 
-		final Path root = Paths.get(inputPath);
-		String globPattern = "glob:" + inputPath + "{**/,}*.scss";
+		final Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
+		String globPattern = "glob:{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
 
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
@@ -223,20 +223,22 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Processing File " + inputFilePath);
 
 		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
+		
 		Path outputRootPath = this.outputPath.toPath();
-		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
 		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+		
+		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
 		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
 
 		SassCompilerOutput out;
 		try {
-			out = compiler.compileFile( //
-					project.getBasedir().toPath().relativize(inputFilePath).toString(), //
-					project.getBasedir().toPath().relativize(outputFilePath).toString(), //
-					project.getBasedir().toPath().relativize(sourceMapOutputPath).toString() //
+			out = compiler.compileFile(
+					inputFilePath.toAbsolutePath().toString(),
+					outputFilePath.toAbsolutePath().toString(),
+					sourceMapOutputPath.toAbsolutePath().toString()
 			);
 		}
 		catch (SassCompilationException e) {
