@@ -24,7 +24,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version>0.1.2</version>
+         <version>0.1.3</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
