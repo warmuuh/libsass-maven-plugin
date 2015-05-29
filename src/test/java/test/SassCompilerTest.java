@@ -70,7 +70,7 @@ public class SassCompilerTest {
 		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
 		compile("/test.scss");
 
-		assertCssContains("* {\n  margin: 0; }\n");
+		assertCssContains("* {\n  margin: 0;\n}\n");
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class SassCompilerTest {
 		compiler.setOutputStyle(SassCompiler.OutputStyle.compact);
 		compile("/test.scss");
 
-		assertCssContains("* {\n  margin: 0; }\n");
+		assertCssContains("* { margin: 0; }\n");
 	}
 
 	@Test

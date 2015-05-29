@@ -1,9 +1,12 @@
 package wrm.libsass;
 
-import sass.SassLibrary;
-import sass.sass_file_context;
-
 import java.io.File;
+
+import sass.SassLibrary;
+import sass.SassLibrary.Sass_Compiler;
+import sass.SassLibrary.Sass_Context;
+import sass.SassLibrary.Sass_File_Context;
+import sass.SassLibrary.Sass_Options;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -32,33 +35,34 @@ public class SassCompiler {
 			String sourceMapPath //
 
 	) throws SassCompilationException {
-		sass_file_context ctx = null;
+		Sass_Compiler compiler = null;
 		try {
-			ctx = SASS.sass_new_file_context();
-			setOptions(ctx, inputPath, outputPath, sourceMapPath);
+			SassLibrary.Sass_File_Context ctx = createConfiguredContext(inputPath, outputPath, sourceMapPath);
 
-			SASS.sass_compile_file(ctx);
-
-			if (ctx.error_status != 0) {
-				throw new SassCompilationException(ctx.error_message.getString(0));
+			compiler = SASS.sass_make_file_compiler(ctx);
+			SASS.sass_compiler_parse(compiler);
+			SASS.sass_compiler_execute(compiler);
+			
+			Sass_Context genericCtx = SASS.sass_file_context_get_context(ctx);
+			
+			if (SASS.sass_context_get_error_status(genericCtx) != 0) {
+				String errMsg = SASS.sass_context_get_error_message(genericCtx);
+				throw new SassCompilationException(errMsg);
 			}
 
-			if (ctx.output_string == null || ctx.output_string.getString(0) == null) {
+			String output_string = SASS.sass_context_get_output_string(genericCtx);
+			if (output_string == null) {
 				throw new SassCompilationException("libsass returned null");
 			}
 
-			String cssOutput = ctx.output_string.getString(0);
-			String sourceMapOutput = null;
-			if (ctx.source_map_string != null && ctx.source_map_string.getString(0) != null) {
-				sourceMapOutput = ctx.source_map_string.getString(0);
-			}
+			String sourceMapOutput = SASS.sass_context_get_source_map_string(genericCtx);
 
-			return new SassCompilerOutput(cssOutput, sourceMapOutput);
+			return new SassCompilerOutput(output_string, sourceMapOutput);
 		}
 		finally {
 			try {
-				if (ctx != null) {
-					SASS.sass_free_file_context(ctx);
+				if (compiler != null) {
+					SASS.sass_delete_compiler(compiler);
 				}
 			}
 			catch (Throwable t) {
@@ -83,38 +87,40 @@ public class SassCompiler {
 		return mem;
 	}
 
-	private void setOptions( //
-			sass_file_context ctx, //
+	private Sass_File_Context createConfiguredContext( //
 			String inputPathAbsolute, //
 			String outputPathRelativeToInput, //
 			String sourceMapPathRelativeToInput //
 	) {
-
 		String allIncludePaths = new File(inputPathAbsolute).getParent();
 		if (this.includePaths != null) {
 			allIncludePaths = this.includePaths + File.pathSeparator + allIncludePaths;
 		}
-
-		ctx.input_path = str(inputPathAbsolute);
-		ctx.output_path = str(outputPathRelativeToInput);
-		ctx.options.include_paths = str(allIncludePaths);
-		ctx.options.source_comments = this.generateSourceComments ? (byte) 1 : 0;
-		ctx.options.output_style = this.outputStyle.ordinal();
-		ctx.options.is_indented_syntax_src = this.inputSyntax == InputSyntax.sass ? (byte) 1 : 0;
-		ctx.options.precision = this.precision;
+		Sass_File_Context ctx = SASS.sass_make_file_context(allIncludePaths);
+		
+		Sass_Options opts = SASS.sass_file_context_get_options(ctx);
+		SASS.sass_option_set_input_path(opts, inputPathAbsolute);
+		SASS.sass_option_set_output_path(opts, outputPathRelativeToInput);
+		SASS.sass_option_set_include_path(opts, allIncludePaths);
+		SASS.sass_option_set_source_comments(opts, this.generateSourceComments ? (byte) 1 : 0);
+		SASS.sass_option_set_output_style(opts, this.outputStyle.ordinal());
+		SASS.sass_option_set_is_indented_syntax_src(opts, this.inputSyntax == InputSyntax.sass ? (byte) 1 : 0);
+		SASS.sass_option_set_precision(opts, this.precision);
 
 		if (this.generateSourceMap) {
-			ctx.options.source_map_file = str(sourceMapPathRelativeToInput);
-			ctx.options.source_map_contents = this.embedSourceContentsInSourceMap ? (byte) 1 : 0;
-			ctx.options.source_map_embed = this.embedSourceMapInCSS ? (byte) 1 : 0;
-			ctx.options.omit_source_map_url = this.omitSourceMappingURL ? (byte) 1 : 0;
-
+			SASS.sass_option_set_source_map_file(opts, sourceMapPathRelativeToInput);
+			SASS.sass_option_set_source_map_contents(opts, this.embedSourceContentsInSourceMap ? (byte) 1 : 0);
+			SASS.sass_option_set_source_map_embed(opts, this.embedSourceMapInCSS ? (byte) 1 : 0);
+			SASS.sass_option_set_omit_source_map_url(opts, this.omitSourceMappingURL ? (byte) 1 : 0);
 		} else {
-			ctx.options.source_map_file = null;
-			ctx.options.source_map_contents = 0;
-			ctx.options.source_map_embed = 0;
-			ctx.options.omit_source_map_url = 1;
+//			SASS.sass_option_set_source_map_file(opts, null);
+			SASS.sass_option_set_source_map_contents(opts, (byte)0);
+			SASS.sass_option_set_source_map_embed(opts, (byte)0);
+			SASS.sass_option_set_omit_source_map_url(opts, (byte)1);
 		}
+		
+		SASS.sass_file_context_set_options(ctx, opts);
+		return ctx;
 	}
 
 	public void setEmbedSourceMapInCSS(final boolean embedSourceMapInCSS) {
