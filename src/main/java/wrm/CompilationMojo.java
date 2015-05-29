@@ -48,14 +48,6 @@ public class CompilationMojo extends AbstractMojo {
 	private String inputPath;
 
 	/**
-	 * Location of images to for use by the image-url Sass function. The default value is
-	 * <tt>null</tt>.
-	 *
-	 * @parameter
-	 */
-	private String imagePath;
-
-	/**
 	 * Additional include path, ';'-separated. The default value is <tt>null</tt>
 	 *
 	 * @parameter
@@ -210,7 +202,6 @@ public class CompilationMojo extends AbstractMojo {
 		compiler.setEmbedSourceContentsInSourceMap(this.embedSourceContentsInSourceMap);
 		compiler.setGenerateSourceComments(this.generateSourceComments);
 		compiler.setGenerateSourceMap(this.generateSourceMap);
-		compiler.setImagePath(this.imagePath);
 		compiler.setIncludePaths(this.includePath);
 		compiler.setInputSyntax(this.inputSyntax);
 		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);

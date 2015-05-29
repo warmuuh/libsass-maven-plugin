@@ -13,7 +13,6 @@ public class SassCompiler {
 
 	private static final SassLibrary SASS = (SassLibrary) Native.loadLibrary("sass", SassLibrary.class);
 
-	private String imagePath;
 	private String includePaths;
 	private OutputStyle outputStyle;
 	private boolean generateSourceComments;
@@ -99,7 +98,6 @@ public class SassCompiler {
 		ctx.input_path = str(inputPathAbsolute);
 		ctx.output_path = str(outputPathRelativeToInput);
 		ctx.options.include_paths = str(allIncludePaths);
-		ctx.options.image_path = str(this.imagePath);
 		ctx.options.source_comments = this.generateSourceComments ? (byte) 1 : 0;
 		ctx.options.output_style = this.outputStyle.ordinal();
 		ctx.options.is_indented_syntax_src = this.inputSyntax == InputSyntax.sass ? (byte) 1 : 0;
@@ -133,10 +131,6 @@ public class SassCompiler {
 
 	public void setGenerateSourceMap(final boolean generateSourceMap) {
 		this.generateSourceMap = generateSourceMap;
-	}
-
-	public void setImagePath(final String imagePath) {
-		this.imagePath = imagePath;
 	}
 
 	public void setIncludePaths(final String includePaths) {

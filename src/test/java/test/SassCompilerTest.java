@@ -32,7 +32,6 @@ public class SassCompilerTest {
 		compiler.setEmbedSourceContentsInSourceMap(false);
 		compiler.setGenerateSourceComments(false);
 		compiler.setGenerateSourceMap(true);
-		compiler.setImagePath(null);
 		compiler.setIncludePaths(null);
 	}
 

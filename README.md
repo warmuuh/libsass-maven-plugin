@@ -71,11 +71,6 @@ Configuration Elements
       </td>
     </tr>
     <tr>
-      <td>imagePath</td>
-      <td><code>null</code></td>
-      <td>Location of images to for use by the image-url Sass function.</td>
-    </tr>
-    <tr>
       <td>includePath</td>
       <td><code>null</code></td>
       <td>Additional include path, ';'-separated</td>
