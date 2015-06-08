@@ -5,7 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses Jna to interface with C-library.
 
 Changelog:
-* 0.1.4 - added contained libsass-version to artifact-version (e.g. `0.1.4-libsass_3.2.4-SNAPSHOT`). 
+* 0.1.4 - added contained libsass-version to artifact-version (e.g. `0.1.4-libsass_3.2.4`). 
   * switched to new libsass API (sass_context.h)
   * removed image_path option (because of [#420](https://github.com/sass/libsass/issues/420))
   * added failOnError flag to skip errors and continue the build, if wanted
@@ -28,7 +28,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version>0.1.4-libsass_3.2.4-SNAPSHOT</version>
+         <version>0.1.4-libsass_3.2.4</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
