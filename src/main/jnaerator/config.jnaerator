@@ -1,1 +1,1 @@
--DSASS -direct -f -runtime JNA -library sass src/libsass/sass_interface.h
+-DSASS -direct -f -runtime JNA -library sass src/libsass/sass_context.h

@@ -5,6 +5,10 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses Jna to interface with C-library.
 
 Changelog:
+* 0.1.4 - added contained libsass-version to artifact-version (e.g. `0.1.4-libsass_3.2.4`). 
+  * switched to new libsass API (sass_context.h)
+  * removed image_path option (because of [#420](https://github.com/sass/libsass/issues/420))
+  * added failOnError flag to skip errors and continue the build, if wanted
 * 0.1.3 - fixed #10 - multi-module projects
 * 0.1.2 - added PR #4, updated to libsass version 3.1 for windows, linux, macos - *thanks to @npiguet, @ogolberg*
 * 0.1.1 - scss files can now be placed in inputpath/ directly
@@ -24,7 +28,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version>0.1.3</version>
+         <version>0.1.4-libsass_3.2.4</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
@@ -69,11 +73,6 @@ Configuration Elements
         traversed recursively, and all <code>.scss</code> files found in this directory or subdirectories
         will be compiled.
       </td>
-    </tr>
-    <tr>
-      <td>imagePath</td>
-      <td><code>null</code></td>
-      <td>Location of images to for use by the image-url Sass function.</td>
     </tr>
     <tr>
       <td>includePath</td>
@@ -150,10 +149,17 @@ Configuration Elements
        Precision for fractional numbers
       </td>
     </tr>
+     <tr>
+      <td>failOnError</td>
+      <td><code>true</code></td>
+      <td>
+       should fail the build in case of compilation errors.
+      </td>
+    </tr>
   </tbody>
 </table>
 
-For windows, linux64 and osx, there are binaries included.
+For windows, linux64 there are binaries included.
 
 For rest: you probably have to compile libsass and add it by using -Djna.library.path=(path to the binary)
 

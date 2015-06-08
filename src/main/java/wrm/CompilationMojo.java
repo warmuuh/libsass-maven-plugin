@@ -48,14 +48,6 @@ public class CompilationMojo extends AbstractMojo {
 	private String inputPath;
 
 	/**
-	 * Location of images to for use by the image-url Sass function. The default value is
-	 * <tt>null</tt>.
-	 *
-	 * @parameter
-	 */
-	private String imagePath;
-
-	/**
 	 * Additional include path, ';'-separated. The default value is <tt>null</tt>
 	 *
 	 * @parameter
@@ -134,6 +126,13 @@ public class CompilationMojo extends AbstractMojo {
 	 * @parameter default-value="5"
 	 */
 	private int precision;
+	
+	/**
+	 * should fail the build in case of compilation errors.
+	 * 
+	 * @parameter default-value="true"
+	 */
+	private boolean failOnError;
 
 	/**
 	 * @parameter expression="${project}"
@@ -186,7 +185,11 @@ public class CompilationMojo extends AbstractMojo {
 
 		getLog().info("Compiled " + fileCount + " files");
 		if(errorCount.get() > 0){
-			throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
+			if (failOnError){
+				throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
+			} else {
+				getLog().error("Failed with " + errorCount.get() + " errors. Continuing due to failOnError=false.");
+			}
 		}
 	}
 
@@ -210,7 +213,6 @@ public class CompilationMojo extends AbstractMojo {
 		compiler.setEmbedSourceContentsInSourceMap(this.embedSourceContentsInSourceMap);
 		compiler.setGenerateSourceComments(this.generateSourceComments);
 		compiler.setGenerateSourceMap(this.generateSourceMap);
-		compiler.setImagePath(this.imagePath);
 		compiler.setIncludePaths(this.includePath);
 		compiler.setInputSyntax(this.inputSyntax);
 		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);
