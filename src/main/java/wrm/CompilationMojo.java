@@ -126,6 +126,13 @@ public class CompilationMojo extends AbstractMojo {
 	 * @parameter default-value="5"
 	 */
 	private int precision;
+	
+	/**
+	 * should fail the build in case of compilation errors.
+	 * 
+	 * @parameter default-value="true"
+	 */
+	private boolean failOnError;
 
 	/**
 	 * @parameter expression="${project}"
@@ -178,7 +185,11 @@ public class CompilationMojo extends AbstractMojo {
 
 		getLog().info("Compiled " + fileCount + " files");
 		if(errorCount.get() > 0){
-			throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
+			if (failOnError){
+				throw new MojoExecutionException("Failed with " + errorCount.get() + " errors");
+			} else {
+				getLog().error("Failed with " + errorCount.get() + " errors. Continuing due to failOnError=false.");
+			}
 		}
 	}
 

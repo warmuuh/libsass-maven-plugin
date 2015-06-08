@@ -8,6 +8,7 @@ Changelog:
 * 0.1.4 - added contained libsass-version to artifact-version (e.g. `0.1.4-libsass_3.2.4-SNAPSHOT`). 
   * switched to new libsass API (sass_context.h)
   * removed image_path option (because of [#420](https://github.com/sass/libsass/issues/420))
+  * added failOnError flag to skip errors and continue the build, if wanted
 * 0.1.3 - fixed #10 - multi-module projects
 * 0.1.2 - added PR #4, updated to libsass version 3.1 for windows, linux, macos - *thanks to @npiguet, @ogolberg*
 * 0.1.1 - scss files can now be placed in inputpath/ directly
@@ -148,10 +149,17 @@ Configuration Elements
        Precision for fractional numbers
       </td>
     </tr>
+     <tr>
+      <td>failOnError</td>
+      <td><code>true</code></td>
+      <td>
+       should fail the build in case of compilation errors.
+      </td>
+    </tr>
   </tbody>
 </table>
 
-For windows, linux64 and osx, there are binaries included.
+For windows, linux64 there are binaries included.
 
 For rest: you probably have to compile libsass and add it by using -Djna.library.path=(path to the binary)
 
