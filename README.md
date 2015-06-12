@@ -1,4 +1,4 @@
-Libsass Maven Plugin
+Libsass Maven Plugin [![Build Status](https://travis-ci.org/warmuuh/libsass-maven-plugin.svg?branch=master)](https://travis-ci.org/warmuuh/libsass-maven-plugin)
 ==========
 
 Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compile sass files.
