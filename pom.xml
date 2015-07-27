@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.warmuuh</groupId>
 	<artifactId>libsass-maven-plugin</artifactId>
-	<version>0.1.4-libsass_3.2.4</version>
+	<version>0.1.5-libsass_3.2.4</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>libsass plugin</name>
