@@ -9,6 +9,7 @@ import io.bit3.jsass.CompilationException;
 import io.bit3.jsass.Options;
 import io.bit3.jsass.Output;
 import io.bit3.jsass.OutputStyle;
+import io.bit3.jsass.context.FileContext;
 
 public class SassCompiler {
 
@@ -50,7 +51,6 @@ public class SassCompiler {
 
     opt.setSourceComments(generateSourceComments);
     opt.setPrecision(precision);
-
 
     if (generateSourceMap) {
       opt.setSourceMapFile(new File(sourceMapPathRelativeToInput).toURI());
