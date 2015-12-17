@@ -1,12 +1,9 @@
 package wrm;
 
-import wrm.libsass.SassCompilationException;
-import wrm.libsass.SassCompiler;
-import wrm.libsass.SassCompilerOutput;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -21,6 +18,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+
+import wrm.libsass.SassCompilationException;
+import wrm.libsass.SassCompiler;
+import wrm.libsass.SassCompilerOutput;
 
 /**
  * Compilation of all scss files from inputpath to outputpath using includePaths
@@ -262,11 +263,15 @@ public class CompilationMojo extends AbstractMojo {
 		File f = outputFilePath.toFile();
 		f.getParentFile().mkdirs();
 		f.createNewFile();
-
-		FileOutputStream fos = new FileOutputStream(f);
-		fos.write(content.getBytes()); // FIXME: potential problem here: What is the expected encoding of the output?
-		fos.flush();
-		fos.close();
+		OutputStreamWriter os = null;
+		try{
+			os = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
+			os.write(content); 
+			os.flush();
+		} finally {
+			if (os != null)
+				os.close();
+		}
 		getLog().debug("Written to: " + f);
 	}
 }
