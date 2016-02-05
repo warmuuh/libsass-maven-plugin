@@ -154,7 +154,7 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Output Path=" + outputPath);
 
 		final Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
-		String fileExt = inputSyntax.toString();
+		String fileExt = getFileExtension();
 		String globPattern = "glob:{**/,}*."+fileExt;
 		getLog().debug("Glob = " + globPattern);
 
@@ -195,6 +195,10 @@ public class CompilationMojo extends AbstractMojo {
 		}
 	}
 
+	private String getFileExtension() {
+		return inputSyntax.toString();
+	}
+
 	private void validateConfig() {
 		if (!generateSourceMap) {
 			if (embedSourceMapInCSS) {
@@ -230,7 +234,8 @@ public class CompilationMojo extends AbstractMojo {
 		
 		Path outputRootPath = this.outputPath.toPath();
 		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
-		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+		String fileExtension = getFileExtension();
+		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\."+fileExtension+"$", ".css"));
 		
 		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
