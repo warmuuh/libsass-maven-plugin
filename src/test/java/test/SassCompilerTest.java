@@ -1,5 +1,6 @@
 package test;
 
+import com.cathive.sass.SassOutputStyle;
 import wrm.libsass.SassCompiler;
 import wrm.libsass.SassCompilerOutput;
 
@@ -25,7 +26,7 @@ public class SassCompilerTest {
 	public void initCompiler(){
 		compiler = new SassCompiler();
 		compiler.setPrecision(5);
-		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
+		compiler.setOutputStyle(SassOutputStyle.EXPANDED);
 		compiler.setOmitSourceMappingURL(false);
 		compiler.setInputSyntax(SassCompiler.InputSyntax.scss);
 		compiler.setEmbedSourceMapInCSS(false);
@@ -67,7 +68,7 @@ public class SassCompilerTest {
 	@Test
 	public void testWithOutputStyleExpanded() throws Exception {
 		// Warning: As of Libsass 3.1, expanded is the same as nested
-		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
+		compiler.setOutputStyle(SassOutputStyle.EXPANDED);
 		compile("/test.scss");
 
 		assertCssContains("* {\n  margin: 0;\n}\n");
@@ -75,7 +76,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOutputStyleNested() throws Exception {
-		compiler.setOutputStyle(SassCompiler.OutputStyle.nested);
+		compiler.setOutputStyle(SassOutputStyle.NESTED);
 		compile("/test.scss");
 
 		assertCssContains("* {\n  margin: 0; }\n");
@@ -83,7 +84,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOutputStyleCompressed() throws Exception {
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(SassOutputStyle.COMPRESSED);
 		compile("/test.scss");
 
 		assertCssContains("*{margin:0}body{font:100% Helvetica,sans-serif;color:#333}");
@@ -92,7 +93,7 @@ public class SassCompilerTest {
 	@Test
 	public void testWithOutputStyleCompact() throws Exception {
 		// Warning: As of Libsass 3.1, compact is the same as nested
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compact);
+		compiler.setOutputStyle(SassOutputStyle.COMPACT);
 		compile("/test.scss");
 
 		assertCssContains("* { margin: 0; }\n");
@@ -111,7 +112,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testDefaultPrecision() throws Exception{
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(SassOutputStyle.COMPRESSED);
 		compile("/precision.scss");
 
 		assertCssContains(".something{padding:0 0.8em 0.71429 0.8em}");
@@ -119,7 +120,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testHighPrecision() throws Exception{
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(SassOutputStyle.COMPRESSED);
 		compiler.setPrecision(10);
 		compile("/precision.scss");
 

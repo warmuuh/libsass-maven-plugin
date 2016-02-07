@@ -14,12 +14,14 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.cathive.sass.SassCompilationException;
+import com.cathive.sass.SassOutputStyle;
+import com.cathive.sass.jna.SassLibrary;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
-import wrm.libsass.SassCompilationException;
 import wrm.libsass.SassCompiler;
 import wrm.libsass.SassCompilerOutput;
 
@@ -150,6 +152,7 @@ public class CompilationMojo extends AbstractMojo {
 
 		inputPath = inputPath.replaceAll("\\\\", "/");
 
+		getLog().info("Starting sass-compilation using sass version " +  SassLibrary.INSTANCE.libsass_version());
 		getLog().debug("Input Path=" + inputPath);
 		getLog().debug("Output Path=" + outputPath);
 
@@ -208,7 +211,7 @@ public class CompilationMojo extends AbstractMojo {
 				getLog().warn("embedSourceContentsInSourceMap=true is ignored. Cause: generateSourceMap=false");
 			}
 		}
-		if (outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested) {
+		if (outputStyle != SassCompiler.OutputStyle.compressed&& outputStyle != SassCompiler.OutputStyle.nested) {
 			getLog().warn("outputStyle=" + outputStyle + " is replaced by nested. Cause: libsass 3.1 only supports compressed and nested");
 		}
 	}
