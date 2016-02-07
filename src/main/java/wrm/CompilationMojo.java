@@ -1,9 +1,13 @@
 package wrm;
 
+import io.bit3.jsass.CompilationException;
+import io.bit3.jsass.Output;
+import io.bit3.jsass.OutputStyle;
+import wrm.libsass.SassCompiler;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -19,10 +23,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
-import wrm.libsass.SassCompilationException;
-import wrm.libsass.SassCompiler;
-import wrm.libsass.SassCompilerOutput;
-
 /**
  * Compilation of all scss files from inputpath to outputpath using includePaths
  *
@@ -34,7 +34,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * The directory in which the compiled CSS files will be placed. The default value is
 	 * <tt>${project.build.directory}</tt>
 	 *
-	 * @parameter expression="${project.build.directory}"
+	 * @parameter property="project.build.directory"
 	 * @required
 	 */
 	private File outputPath;
@@ -63,7 +63,7 @@ public class CompilationMojo extends AbstractMojo {
 	 *
 	 * @parameter default-value="expanded"
 	 */
-	private SassCompiler.OutputStyle outputStyle;
+	private OutputStyle outputStyle;
 
 	/**
 	 * Emit comments in the compiled CSS indicating the corresponding source line. The default
@@ -85,7 +85,7 @@ public class CompilationMojo extends AbstractMojo {
 	 * The directory in which the source map files that correspond to the compiled CSS will be
 	 * placed. The default value is <tt>${project.build.directory}</tt>
 	 *
-	 * @parameter expression="${project.build.directory}"
+	 * @parameter property="project.build.directory"
 	 */
 	private String sourceMapOutputPath;
 
@@ -127,16 +127,16 @@ public class CompilationMojo extends AbstractMojo {
 	 * @parameter default-value="5"
 	 */
 	private int precision;
-	
+
 	/**
 	 * should fail the build in case of compilation errors.
-	 * 
+	 *
 	 * @parameter default-value="true"
 	 */
 	private boolean failOnError;
 
 	/**
-	 * @parameter expression="${project}"
+	 * @parameter property="project"
 	 * @required
 	 * @readonly
 	 */
@@ -154,8 +154,7 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Output Path=" + outputPath);
 
 		final Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
-		String fileExt = getFileExtension();
-		String globPattern = "glob:{**/,}*."+fileExt;
+		String globPattern = "glob:{**/,}*.scss";
 		getLog().debug("Glob = " + globPattern);
 
 		final PathMatcher matcher = FileSystems.getDefault().getPathMatcher(globPattern);
@@ -195,10 +194,6 @@ public class CompilationMojo extends AbstractMojo {
 		}
 	}
 
-	private String getFileExtension() {
-		return inputSyntax.toString();
-	}
-
 	private void validateConfig() {
 		if (!generateSourceMap) {
 			if (embedSourceMapInCSS) {
@@ -208,7 +203,7 @@ public class CompilationMojo extends AbstractMojo {
 				getLog().warn("embedSourceContentsInSourceMap=true is ignored. Cause: generateSourceMap=false");
 			}
 		}
-		if (outputStyle != SassCompiler.OutputStyle.compressed && outputStyle != SassCompiler.OutputStyle.nested) {
+		if (outputStyle != OutputStyle.COMPRESSED && outputStyle != OutputStyle.NESTED) {
 			getLog().warn("outputStyle=" + outputStyle + " is replaced by nested. Cause: libsass 3.1 only supports compressed and nested");
 		}
 	}
@@ -231,18 +226,17 @@ public class CompilationMojo extends AbstractMojo {
 		getLog().debug("Processing File " + inputFilePath);
 
 		Path relativeInputPath = inputRootPath.relativize(inputFilePath);
-		
+
 		Path outputRootPath = this.outputPath.toPath();
 		Path outputFilePath = outputRootPath.resolve(relativeInputPath);
-		String fileExtension = getFileExtension();
-		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\."+fileExtension+"$", ".css"));
-		
+		outputFilePath = Paths.get(outputFilePath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css"));
+
 		Path sourceMapRootPath = Paths.get(this.sourceMapOutputPath);
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
 		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
 
-		SassCompilerOutput out;
+		Output out;
 		try {
 			out = compiler.compileFile(
 					inputFilePath.toAbsolutePath().toString(),
@@ -250,7 +244,7 @@ public class CompilationMojo extends AbstractMojo {
 					sourceMapOutputPath.toAbsolutePath().toString()
 			);
 		}
-		catch (SassCompilationException e) {
+		catch (CompilationException e) {
 			getLog().error(e.getMessage());
 			getLog().debug(e);
 			return false;
@@ -258,9 +252,9 @@ public class CompilationMojo extends AbstractMojo {
 
 		getLog().debug("Compilation finished.");
 
-		writeContentToFile(outputFilePath, out.getCssOutput());
-		if (out.getSourceMapOutput() != null) {
-			writeContentToFile(sourceMapOutputPath, out.getSourceMapOutput());
+		writeContentToFile(outputFilePath, out.getCss());
+		if (out.getSourceMap() != null) {
+			writeContentToFile(sourceMapOutputPath, out.getSourceMap());
 		}
 		return true;
 	}
@@ -269,15 +263,11 @@ public class CompilationMojo extends AbstractMojo {
 		File f = outputFilePath.toFile();
 		f.getParentFile().mkdirs();
 		f.createNewFile();
-		OutputStreamWriter os = null;
-		try{
-			os = new OutputStreamWriter(new FileOutputStream(f), "UTF-8");
-			os.write(content); 
-			os.flush();
-		} finally {
-			if (os != null)
-				os.close();
-		}
+
+		FileOutputStream fos = new FileOutputStream(f);
+		fos.write(content.getBytes()); // FIXME: potential problem here: What is the expected encoding of the output?
+		fos.flush();
+		fos.close();
 		getLog().debug("Written to: " + f);
 	}
 }
