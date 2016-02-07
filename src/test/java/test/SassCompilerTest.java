@@ -1,16 +1,14 @@
 package test;
 
 import com.cathive.sass.SassOutputStyle;
+import com.cathive.sass.jna.SassLibrary;
 import wrm.libsass.SassCompiler;
 import wrm.libsass.SassCompilerOutput;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests for {@link SassCompiler}.
@@ -125,6 +123,11 @@ public class SassCompilerTest {
 		compile("/precision.scss");
 
 		assertCssContains(".something{padding:0 0.8em 0.7142857143 0.8em}");
+	}
+
+	@Test
+	public void testRightVersionInPom() {
+		assertEquals("3.2.5", SassLibrary.INSTANCE.libsass_version());
 	}
 
 	private void compile(String file) throws Exception {

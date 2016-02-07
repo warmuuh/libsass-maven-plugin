@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses Jna to interface with C-library.
 
 Changelog:
+* next  - replaced libsass jni-bindings with cathive bindings (currently using libsass-3.2.5), fixed minor bugs
 * 0.1.7 - UTF8 encoding issue, used wrong file extension for sass style
 * 0.1.6 - added m2e eclipse intergation, thanks @dashorst
 * 0.1.5 - readded macOs binaries, thanks @tommix1987
@@ -31,7 +32,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version><VERSION>-libsass_3.2.4</version>
+         <version><VERSION>-libsass_3.2.5</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
