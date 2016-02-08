@@ -1,7 +1,8 @@
 package test;
 
+import io.bit3.jsass.Output;
+import io.bit3.jsass.OutputStyle;
 import wrm.libsass.SassCompiler;
-import wrm.libsass.SassCompilerOutput;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,13 +20,13 @@ import static org.junit.Assert.assertTrue;
 public class SassCompilerTest {
 
 	private SassCompiler compiler;
-	private SassCompilerOutput out;
+	private Output out;
 
 	@Before
 	public void initCompiler(){
 		compiler = new SassCompiler();
 		compiler.setPrecision(5);
-		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
+		compiler.setOutputStyle(OutputStyle.EXPANDED);
 		compiler.setOmitSourceMappingURL(false);
 		compiler.setInputSyntax(SassCompiler.InputSyntax.scss);
 		compiler.setEmbedSourceMapInCSS(false);
@@ -51,7 +52,7 @@ public class SassCompilerTest {
 		compile("/test.scss");
 
 		assertCssDoesNotContain("/*# sourceMappingURL=");
-		assertNotNull(out.getSourceMapOutput());
+		assertNotNull(out.getSourceMap());
 	}
 
 	@Test
@@ -61,13 +62,13 @@ public class SassCompilerTest {
 		compile("/test.scss");
 
 		assertCssContains("/*# sourceMappingURL=");
-		assertNotNull(out.getSourceMapOutput());
+		assertNotNull(out.getSourceMap());
 	}
 
 	@Test
 	public void testWithOutputStyleExpanded() throws Exception {
 		// Warning: As of Libsass 3.1, expanded is the same as nested
-		compiler.setOutputStyle(SassCompiler.OutputStyle.expanded);
+		compiler.setOutputStyle(OutputStyle.EXPANDED);
 		compile("/test.scss");
 
 		assertCssContains("* {\n  margin: 0;\n}\n");
@@ -75,7 +76,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOutputStyleNested() throws Exception {
-		compiler.setOutputStyle(SassCompiler.OutputStyle.nested);
+		compiler.setOutputStyle(OutputStyle.NESTED);
 		compile("/test.scss");
 
 		assertCssContains("* {\n  margin: 0; }\n");
@@ -83,7 +84,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testWithOutputStyleCompressed() throws Exception {
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(OutputStyle.COMPRESSED);
 		compile("/test.scss");
 
 		assertCssContains("*{margin:0}body{font:100% Helvetica,sans-serif;color:#333}");
@@ -92,7 +93,7 @@ public class SassCompilerTest {
 	@Test
 	public void testWithOutputStyleCompact() throws Exception {
 		// Warning: As of Libsass 3.1, compact is the same as nested
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compact);
+		compiler.setOutputStyle(OutputStyle.COMPACT);
 		compile("/test.scss");
 
 		assertCssContains("* { margin: 0; }\n");
@@ -105,13 +106,13 @@ public class SassCompilerTest {
 		compiler.setOmitSourceMappingURL(false);
 		compile("/test.scss");
 
-		assertNull(out.getSourceMapOutput());
+		assertNull(out.getSourceMap());
 		assertCssDoesNotContain("/*# sourceMappingURL=");
 	}
 
 	@Test
 	public void testDefaultPrecision() throws Exception{
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(OutputStyle.COMPRESSED);
 		compile("/precision.scss");
 
 		assertCssContains(".something{padding:0 0.8em 0.71429 0.8em}");
@@ -119,7 +120,7 @@ public class SassCompilerTest {
 
 	@Test
 	public void testHighPrecision() throws Exception{
-		compiler.setOutputStyle(SassCompiler.OutputStyle.compressed);
+		compiler.setOutputStyle(OutputStyle.COMPRESSED);
 		compiler.setPrecision(10);
 		compile("/precision.scss");
 
@@ -132,18 +133,18 @@ public class SassCompilerTest {
 	}
 
 	private void assertCssContains(String expected){
-		assertTrue("Generated CSS does not contain: " + expected + "\n" + out.getCssOutput(), out.getCssOutput().contains(expected));
+		assertTrue("Generated CSS does not contain: " + expected + "\n" + out.getCss(), out.getCss().contains(expected));
 	}
 
 	private void assertCssDoesNotContain(String unwanted){
-		assertFalse("Generated CSS contains: " + unwanted + "\n" + out.getCssOutput(), out.getCssOutput().contains(unwanted));
+		assertFalse("Generated CSS contains: " + unwanted + "\n" + out.getCss(), out.getCss().contains(unwanted));
 	}
 
 	private void assertMapContains(String expected){
-		assertTrue("Generated SourceMap does not contain: " + expected + "\n" + out.getSourceMapOutput(), out.getSourceMapOutput().contains(expected));
+		assertTrue("Generated SourceMap does not contain: " + expected + "\n" + out.getSourceMap(), out.getSourceMap().contains(expected));
 	}
 
 	private void assertMapDoesNotContain(String unwanted){
-		assertFalse("Generated SourceMap contains: " + unwanted + "\n" + out.getSourceMapOutput(), out.getSourceMapOutput().contains(unwanted));
+		assertFalse("Generated SourceMap contains: " + unwanted + "\n" + out.getSourceMap(), out.getSourceMap().contains(unwanted));
 	}
 }
