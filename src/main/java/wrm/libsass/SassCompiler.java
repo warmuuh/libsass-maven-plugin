@@ -8,12 +8,11 @@ import java.net.URI;
 import io.bit3.jsass.CompilationException;
 import io.bit3.jsass.Options;
 import io.bit3.jsass.Output;
-import io.bit3.jsass.OutputStyle;
 
 public class SassCompiler {
 
 	private String includePaths;
-	private OutputStyle outputStyle;
+	private io.bit3.jsass.OutputStyle outputStyle;
 	private boolean generateSourceComments;
 	private boolean generateSourceMap;
 	private boolean omitSourceMappingURL;
@@ -35,10 +34,18 @@ public class SassCompiler {
 		URI inputFile = new File(inputPathAbsolute).toURI();
 		URI outputFile = new File(outputPathRelativeToInput).toURI();
 
+		Options opt = getConfiguredOptions(inputPathAbsolute, sourceMapPathRelativeToInput);
+
+		io.bit3.jsass.Compiler c = new io.bit3.jsass.Compiler();
+
+		return c.compileFile(inputFile, outputFile, opt);
+	}
+
+	private Options getConfiguredOptions(String inputPathAbsolute, String sourceMapPathRelativeToInput) {
 		Options opt = new Options();
 
 		if(includePaths != null) {
-			for (String path : includePaths.split(";")) {
+			for (String path : includePaths.split(File.pathSeparator)) {
 				opt.getIncludePaths().add(new File(path));
 			}
 		}
@@ -62,10 +69,7 @@ public class SassCompiler {
 			opt.setSourceMapEmbed(false);
 			opt.setOmitSourceMapUrl(true);
 		}
-
-		io.bit3.jsass.Compiler c = new io.bit3.jsass.Compiler();
-
-		return c.compileFile(inputFile, outputFile, opt);
+		return opt;
 	}
 
 	public void setEmbedSourceMapInCSS(final boolean embedSourceMapInCSS) {
@@ -96,8 +100,16 @@ public class SassCompiler {
 		this.omitSourceMappingURL = omitSourceMappingURL;
 	}
 
-	public void setOutputStyle(final OutputStyle outputStyle) {
+	public void setOutputStyle(final io.bit3.jsass.OutputStyle outputStyle) {
 		this.outputStyle = outputStyle;
+	}
+
+	public void setOutputStyle(final OutputStyle outputStyle) {
+		this.outputStyle = io.bit3.jsass.OutputStyle.values()[outputStyle.ordinal()];
+	}
+
+	public static enum OutputStyle {
+		nested, expanded, compact, compressed
 	}
 
 	public void setPrecision(final int precision) {
