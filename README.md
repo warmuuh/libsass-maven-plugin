@@ -2,7 +2,7 @@ Libsass Maven Plugin [![Build Status](https://travis-ci.org/warmuuh/libsass-mave
 ==========
 
 Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compile sass files.
-Uses Jna to interface with C-library.
+Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
 * 0.2.0 - switched native bindings to bit3 bindings (using libsass 3.3.2), *java8-only*
@@ -162,10 +162,6 @@ Configuration Elements
     </tr>
   </tbody>
 </table>
-
-For windows, linux64 there are binaries included.
-
-For rest: you probably have to compile libsass and add it by using -Djna.library.path=(path to the binary)
 
 
 License
