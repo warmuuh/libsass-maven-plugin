@@ -115,7 +115,7 @@ public class SassCompilerTest {
 		compiler.setOutputStyle(OutputStyle.COMPRESSED);
 		compile("/precision.scss");
 
-		assertCssContains(".something{padding:0 0.8em 0.71429 0.8em}");
+		assertCssContains(".something{padding:0 0.8em .71429 0.8em}");
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class SassCompilerTest {
 		compiler.setPrecision(10);
 		compile("/precision.scss");
 
-		assertCssContains(".something{padding:0 0.8em 0.7142857143 0.8em}");
+		assertCssContains(".something{padding:0 0.8em .7142857143 0.8em}");
 	}
 
 	private void compile(String file) throws Exception {
