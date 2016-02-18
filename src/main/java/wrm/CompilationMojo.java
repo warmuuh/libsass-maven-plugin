@@ -256,6 +256,14 @@ public class CompilationMojo extends AbstractMojo {
 			return false;
 		}
 
+		if (out.getErrorStatus() != 0) {
+			getLog().error(out.getErrorMessage());
+			getLog().debug("ErrorText: " + out.getErrorText());
+			getLog().debug("ErrorFile: " + out.getErrorFile());
+			getLog().debug("ErrorJson: " + out.getErrorJson());
+			return false;
+		}
+
 		getLog().debug("Compilation finished.");
 
 		writeContentToFile(outputFilePath, out.getCss());
