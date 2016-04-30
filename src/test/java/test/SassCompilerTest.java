@@ -133,18 +133,30 @@ public class SassCompilerTest {
 	}
 
 	private void assertCssContains(String expected){
-		assertTrue("Generated CSS does not contain: " + expected + "\n" + out.getCss(), out.getCss().contains(expected));
+		String css = out.getCss();
+		String formatted = replaceNewLines(expected);
+		assertTrue("Generated CSS does not contain: " + formatted + "\nbut got: " + css, css.contains(formatted));
+	}
+
+	private String replaceNewLines(String expected) {
+		return expected.replace("\n", System.lineSeparator());
 	}
 
 	private void assertCssDoesNotContain(String unwanted){
-		assertFalse("Generated CSS contains: " + unwanted + "\n" + out.getCss(), out.getCss().contains(unwanted));
+		String css = out.getCss();
+		String formatted = replaceNewLines(unwanted);
+		assertFalse("Generated CSS contains: " + formatted + "\n" + css, css.contains(formatted));
 	}
 
 	private void assertMapContains(String expected){
-		assertTrue("Generated SourceMap does not contain: " + expected + "\n" + out.getSourceMap(), out.getSourceMap().contains(expected));
+		String sourceMap = out.getSourceMap();
+		String formatted = replaceNewLines(expected);
+		assertTrue("Generated SourceMap does not contain: " + formatted + "\n" + sourceMap, sourceMap.contains(formatted));
 	}
 
 	private void assertMapDoesNotContain(String unwanted){
-		assertFalse("Generated SourceMap contains: " + unwanted + "\n" + out.getSourceMap(), out.getSourceMap().contains(unwanted));
+		String sourceMap = out.getSourceMap();
+		String formatted = replaceNewLines(unwanted);
+		assertFalse("Generated SourceMap contains: " + formatted + "\n" + sourceMap, sourceMap.contains(formatted));
 	}
 }

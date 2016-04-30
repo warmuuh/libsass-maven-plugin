@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
+* 0.2.3 - upgrade to libsass 3.3.4
 * 0.2.2  - minor bugfixes, readded m2e lifecycle mapping 
 * 0.2.1 - updated libsass to 3.3.3
 * 0.2.0 - switched native bindings to bit3 bindings (using libsass 3.3.2), **java8-only**
