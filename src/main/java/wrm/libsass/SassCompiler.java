@@ -31,8 +31,11 @@ public class SassCompiler {
 
 	) throws CompilationException {
 
-		URI inputFile = new File(inputPathAbsolute).toURI();
-		URI outputFile = new File(outputPathRelativeToInput).toURI();
+		String inputOmitSpace = inputPathAbsolute.replaceAll("%20", " ");
+		String outputOmitSpace = outputPathRelativeToInput.replaceAll("%20", " ");
+
+		URI inputFile = new File(inputOmitSpace).toURI();
+		URI outputFile = new File(outputOmitSpace).toURI();
 
 		Options opt = getConfiguredOptions(inputPathAbsolute, sourceMapPathRelativeToInput);
 
