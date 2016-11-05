@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -135,6 +136,14 @@ public class CompilationMojo extends AbstractMojo {
 	 */
 	private boolean failOnError;
 
+
+        /**
+         * Copy source files to output directory.
+         *
+         * @parameter default-value="false"
+         */
+        private boolean copySourceToOutput;
+
 	/**
 	 * @parameter property="project"
 	 * @required
@@ -241,6 +250,12 @@ public class CompilationMojo extends AbstractMojo {
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
 		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
+		if (copySourceToOutput) {
+			Path inputOutputPath = outputRootPath.resolve(relativeInputPath);
+			inputOutputPath.toFile().mkdirs();
+			Files.copy(inputFilePath, inputOutputPath, REPLACE_EXISTING);
+			inputFilePath = inputOutputPath;
+		}
 
 		Output out;
 		try {
