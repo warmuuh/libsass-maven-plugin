@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,9 +60,9 @@ public class CompilationMojo extends AbstractMojo {
 	 * Output style for the generated css code. One of <tt>nested</tt>, <tt>expanded</tt>,
 	 * <tt>compact</tt>, <tt>compressed</tt>. Note that as of libsass 3.1, <tt>expanded</tt>
 	 * and <tt>compact</tt> are the same as <tt>nested</tt>. The default value is
-	 * <tt>expanded</tt>.
+	 * <tt>nested</tt>.
 	 *
-	 * @parameter default-value="expanded"
+	 * @parameter default-value="nested"
 	 */
 	private SassCompiler.OutputStyle outputStyle;
 
@@ -134,6 +135,14 @@ public class CompilationMojo extends AbstractMojo {
 	 * @parameter default-value="true"
 	 */
 	private boolean failOnError;
+
+
+        /**
+         * Copy source files to output directory.
+         *
+         * @parameter default-value="false"
+         */
+        private boolean copySourceToOutput;
 
 	/**
 	 * @parameter property="project"
@@ -241,6 +250,12 @@ public class CompilationMojo extends AbstractMojo {
 		Path sourceMapOutputPath = sourceMapRootPath.resolve(relativeInputPath);
 		sourceMapOutputPath = Paths.get(sourceMapOutputPath.toAbsolutePath().toString().replaceFirst("\\.scss$", ".css.map"));
 
+		if (copySourceToOutput) {
+			Path inputOutputPath = outputRootPath.resolve(relativeInputPath);
+			inputOutputPath.toFile().mkdirs();
+			Files.copy(inputFilePath, inputOutputPath, REPLACE_EXISTING);
+			inputFilePath = inputOutputPath;
+		}
 
 		Output out;
 		try {
