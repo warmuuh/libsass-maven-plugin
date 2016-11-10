@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
+* next  - added copySourceToOutput, changed default outputstyle to 'nested' 
 * 0.2.4 - fixed bug with empty spaces in path
 * 0.2.3 - upgrade to libsass 3.3.4
 * 0.2.2  - minor bugfixes, readded m2e lifecycle mapping 
@@ -162,6 +163,13 @@ Configuration Elements
       <td><code>true</code></td>
       <td>
        should fail the build in case of compilation errors.
+      </td>
+    </tr>
+    <tr>
+      <td>copySourceToOutput</td>
+      <td><code>false</code></td>
+      <td>
+       copies all files from source directory to output directory
       </td>
     </tr>
   </tbody>
