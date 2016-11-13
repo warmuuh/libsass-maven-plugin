@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.warmuuh</groupId>
 	<artifactId>libsass-maven-plugin</artifactId>
-	<version>0.2.5-libsass_3.3.4-SNAPSHOT</version>
+	<version>0.2.5-libsass_3.3.6-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>libsass plugin</name>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>io.bit3</groupId>
 			<artifactId>jsass</artifactId>
-			<version>5.1.1</version>
+			<version>5.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
