@@ -5,6 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
+* next - upgraded libsass to 3.4.0
 * 0.2.5  - added copySourceToOutput, changed default outputstyle to 'nested', upgraded libsass to 3.3.6
 * 0.2.4 - fixed bug with empty spaces in path
 * 0.2.3 - upgrade to libsass 3.3.4
