@@ -5,7 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
-* next - upgraded libsass to 3.4.0
+* 0.2.6 - upgraded libsass to 3.4.0
   * added libsass:watch goal to watch and recompile include directory - *thansk to @lorenzodee*
 * 0.2.5  - added copySourceToOutput, changed default outputstyle to 'nested', upgraded libsass to 3.3.6
 * 0.2.4 - fixed bug with empty spaces in path
@@ -59,7 +59,10 @@ Configure plugin in your pom.xml:
 </build>
 ```
 
-Alternatively you can use the `watch` goal to have the plugin watch you files and recompile on change.
+Alternatively you can use the `watch` goal to have the plugin watch you files and recompile on change:
+```
+mvn com.github.warmuuh:libsass-maven-plugin:<version>-libsass_3.4.0:watch
+```
 
 Configuration Elements
 ----------------------
