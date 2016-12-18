@@ -17,6 +17,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
@@ -38,8 +39,9 @@ public class WatchMojo extends AbstractSassMojo {
 		getLog().debug("Output Path=" + outputPath);
 
 		try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
-			Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
-			registerAll(root, watcher);
+			registerWatchDirectories(watcher);
+			
+			
 			getLog().info("Watching [" + inputPath + "]...");
 			try {
 				long lastModified = 0;
@@ -73,7 +75,22 @@ public class WatchMojo extends AbstractSassMojo {
 				getLog().warn("Watch service interrupted");
 			}
 		} catch (IOException e) {
-			throw new MojoExecutionException("Exception while watching", e);
+			throw new MojoExecutionException("Exception while watching: "+ExceptionUtils.getRootCauseMessage(e), e);
+		}
+	}
+
+	/**
+	 * registers inputPath and includePaths in watcher
+	 */
+	private void registerWatchDirectories(WatchService watcher) throws IOException {
+		Path root = project.getBasedir().toPath().resolve(Paths.get(inputPath));
+		registerAll(root, watcher);
+		
+		if (this.includePath != null) {
+			for(String inclPath : includePath.split(";")) {
+				Path incl = project.getBasedir().toPath().resolve(Paths.get(inclPath));
+				registerAll(incl, watcher);
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@ Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
 * next - upgraded libsass to 3.4.0
+  * added libsass:watch goal to watch and recompile include directory - *thansk to @lorenzodee*
 * 0.2.5  - added copySourceToOutput, changed default outputstyle to 'nested', upgraded libsass to 3.3.6
 * 0.2.4 - fixed bug with empty spaces in path
 * 0.2.3 - upgrade to libsass 3.3.4
@@ -57,6 +58,8 @@ Configure plugin in your pom.xml:
    </plugins>
 </build>
 ```
+
+Alternatively you can use the `watch` goal to have the plugin watch you files and recompile on change.
 
 Configuration Elements
 ----------------------
