@@ -59,7 +59,7 @@ Configure plugin in your pom.xml:
 </build>
 ```
 
-Alternatively you can use the `watch` goal to have the plugin watch you files and recompile on change:
+Alternatively, you can use the `watch` goal to have the plugin watch your files and recompile on change:
 ```
 mvn com.github.warmuuh:libsass-maven-plugin:<version>-libsass_3.4.0:watch
 ```
