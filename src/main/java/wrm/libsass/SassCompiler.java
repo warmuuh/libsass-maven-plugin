@@ -1,13 +1,13 @@
 package wrm.libsass;
 
-import static wrm.libsass.SassCompiler.InputSyntax.sass;
+import io.bit3.jsass.CompilationException;
+import io.bit3.jsass.Options;
+import io.bit3.jsass.Output;
 
 import java.io.File;
 import java.net.URI;
 
-import io.bit3.jsass.CompilationException;
-import io.bit3.jsass.Options;
-import io.bit3.jsass.Output;
+import static wrm.libsass.SassCompiler.InputSyntax.sass;
 
 public class SassCompiler {
 
@@ -20,6 +20,7 @@ public class SassCompiler {
 	private boolean embedSourceContentsInSourceMap;
 	private SassCompiler.InputSyntax inputSyntax;
 	private int precision;
+	private boolean enableClasspathAwareImporter;
 
 	/**
 	 * All paths passed to this method must be relative to the same directory.
@@ -72,6 +73,11 @@ public class SassCompiler {
 			opt.setSourceMapEmbed(false);
 			opt.setOmitSourceMapUrl(true);
 		}
+
+		if (enableClasspathAwareImporter) {
+			opt.getImporters().add(new ClasspathAwareImporter());
+		}
+
 		return opt;
 	}
 
@@ -119,6 +125,9 @@ public class SassCompiler {
 		this.precision = precision;
 	}
 
+	public void setEnableClasspathAwareImporter(boolean enableClasspathAwareImporter) {
+		this.enableClasspathAwareImporter = enableClasspathAwareImporter;
+	}
 
 	public static enum InputSyntax {
 		sass, scss

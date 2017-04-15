@@ -1,27 +1,20 @@
 package wrm;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import io.bit3.jsass.CompilationException;
+import io.bit3.jsass.Output;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.project.MavenProject;
+import wrm.libsass.SassCompiler;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.project.MavenProject;
-
-import io.bit3.jsass.CompilationException;
-import io.bit3.jsass.Output;
-import wrm.libsass.SassCompiler;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class AbstractSassMojo extends AbstractMojo {
 
@@ -111,6 +104,13 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	 * @parameter default-value="5"
 	 */
 	private int precision;
+	/**
+	 * Enables classpath aware importer which make possible to <tt>@import</tt>
+	 * files from classpath and WebJars.
+	 *
+	 * @parameter default-value="false"
+	 */
+	private boolean enableClasspathAwareImporter;
 	/**
 	 * should fail the build in case of compilation errors.
 	 *
@@ -203,6 +203,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 		compiler.setOmitSourceMappingURL(this.omitSourceMapingURL);
 		compiler.setOutputStyle(this.outputStyle);
 		compiler.setPrecision(this.precision);
+		compiler.setEnableClasspathAwareImporter(this.enableClasspathAwareImporter);
 		return compiler;
 	}
 
