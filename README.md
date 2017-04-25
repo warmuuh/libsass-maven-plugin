@@ -5,6 +5,8 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
+* 0.2.7 - upgraded libsass to 3.4.3
+  * added webjar support - thanks to @flipp5b 
 * 0.2.6 - upgraded libsass to 3.4.0
   * added libsass:watch goal to watch and recompile include directory - *thansk to @lorenzodee*
 * 0.2.5  - added copySourceToOutput, changed default outputstyle to 'nested', upgraded libsass to 3.3.6
