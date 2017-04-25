@@ -49,7 +49,6 @@ Configure plugin in your pom.xml:
             </execution>
          </executions>
          <configuration>
-            <imgPath>../img</imgPath>
             <inputPath>${basedir}/src/main/sass/</inputPath>
             <outputPath>${basedir}/target/</outputPath>
             <includePath>${basedir}/src/main/sass/plugins/</includePath>
