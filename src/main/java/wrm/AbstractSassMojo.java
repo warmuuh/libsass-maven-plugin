@@ -2,6 +2,7 @@ package wrm;
 
 import io.bit3.jsass.CompilationException;
 import io.bit3.jsass.Output;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.project.MavenProject;
 import wrm.libsass.SassCompiler;
@@ -10,8 +11,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -110,7 +117,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	 *
 	 * @parameter default-value="false"
 	 */
-	private boolean enableClasspathAwareImporter;
+	private boolean enableClasspathAwareImporter;	
 	/**
 	 * should fail the build in case of compilation errors.
 	 *
@@ -179,6 +186,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	}
 
 	protected void validateConfig() {
+	   setCompileClasspath();
 		if (!generateSourceMap) {
 			if (embedSourceMapInCSS) {
 				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
@@ -192,6 +200,27 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 		}
 	}
 
+	private void setCompileClasspath() {
+	  try {
+	    Set<URL> urls = new HashSet<>();
+	    List<String> elements = project.getCompileClasspathElements();
+	    for (String element : elements) {
+	      urls.add(new File(element).toURI().toURL());
+	    }
+
+	    ClassLoader contextClassLoader = URLClassLoader.newInstance(
+	      urls.toArray(new URL[0]),
+	      Thread.currentThread().getContextClassLoader());
+
+	    Thread.currentThread().setContextClassLoader(contextClassLoader);
+	    
+	  } catch (DependencyResolutionRequiredException e) {
+	    throw new RuntimeException(e);
+	  } catch (MalformedURLException e) {
+	    throw new RuntimeException(e);
+	  }
+	}
+	  
 	protected SassCompiler initCompiler() {
 		SassCompiler compiler = new SassCompiler();
 		compiler.setEmbedSourceMapInCSS(this.embedSourceMapInCSS);

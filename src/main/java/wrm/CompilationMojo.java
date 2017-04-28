@@ -8,6 +8,7 @@ import org.apache.maven.plugin.MojoFailureException;
  *
  * @goal compile
  * @phase generate-resources
+ * @requiresDependencyResolution compile
  */
 public class CompilationMojo extends AbstractSassMojo {
 
