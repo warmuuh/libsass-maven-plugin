@@ -117,7 +117,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	 *
 	 * @parameter default-value="false"
 	 */
-	private boolean enableClasspathAwareImporter;	
+	private boolean enableClasspathAwareImporter;
 	/**
 	 * should fail the build in case of compilation errors.
 	 *
@@ -186,7 +186,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	}
 
 	protected void validateConfig() {
-	   setCompileClasspath();
+		setCompileClasspath();
 		if (!generateSourceMap) {
 			if (embedSourceMapInCSS) {
 				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
@@ -201,26 +201,26 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	}
 
 	private void setCompileClasspath() {
-	  try {
-	    Set<URL> urls = new HashSet<>();
-	    List<String> elements = project.getCompileClasspathElements();
-	    for (String element : elements) {
-	      urls.add(new File(element).toURI().toURL());
-	    }
+		try {
+			Set<URL> urls = new HashSet<>();
+			List<String> elements = project.getCompileClasspathElements();
+			for (String element : elements) {
+				urls.add(new File(element).toURI().toURL());
+			}
 
-	    ClassLoader contextClassLoader = URLClassLoader.newInstance(
-	      urls.toArray(new URL[0]),
-	      Thread.currentThread().getContextClassLoader());
+			ClassLoader contextClassLoader = URLClassLoader.newInstance(
+					urls.toArray(new URL[0]),
+					Thread.currentThread().getContextClassLoader());
 
-	    Thread.currentThread().setContextClassLoader(contextClassLoader);
-	    
-	  } catch (DependencyResolutionRequiredException e) {
-	    throw new RuntimeException(e);
-	  } catch (MalformedURLException e) {
-	    throw new RuntimeException(e);
-	  }
+			Thread.currentThread().setContextClassLoader(contextClassLoader);
+
+		} catch (DependencyResolutionRequiredException e) {
+			throw new RuntimeException(e);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 	}
-	  
+
 	protected SassCompiler initCompiler() {
 		SassCompiler compiler = new SassCompiler();
 		compiler.setEmbedSourceMapInCSS(this.embedSourceMapInCSS);

@@ -17,7 +17,7 @@ class WebJarTranslator {
 
 	WebJarTranslator() {
 		index = WebJarAssetLocator.getFullPathIndex(Pattern.compile(".*"),
-		    Thread.currentThread().getContextClassLoader())
+				Thread.currentThread().getContextClassLoader())
 				.values()
 				.stream()
 				.map(WEBJAR_PATTERN::matcher)
