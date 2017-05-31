@@ -49,7 +49,7 @@ public class SassCompiler {
 		Options opt = new Options();
 
 		if(includePaths != null) {
-			for (String path : includePaths.split(File.pathSeparator)) {
+			for (String path : includePaths.split(';')) {
 				opt.getIncludePaths().add(new File(path));
 			}
 		}
