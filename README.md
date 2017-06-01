@@ -5,6 +5,9 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
+* next  - used compilation classpath for including webjars
+  * fixed issue with os-dependent path-separator
+  * plugin now aware of incremental builds
 * 0.2.7 - upgraded libsass to 3.4.3
   * added webjar support - thanks to @flipp5b 
 * 0.2.6 - upgraded libsass to 3.4.0
@@ -41,7 +44,7 @@ Configure plugin in your pom.xml:
       <plugin>
          <groupId>com.github.warmuuh</groupId>
          <artifactId>libsass-maven-plugin</artifactId>
-         <version><VERSION>-libsass_3.3.6</version>
+         <version><VERSION>-libsass_3.4.3</version>
          <executions>
             <execution>
                <phase>generate-resources</phase>
@@ -62,7 +65,7 @@ Configure plugin in your pom.xml:
 
 Alternatively, you can use the `watch` goal to have the plugin watch your files and recompile on change:
 ```
-mvn com.github.warmuuh:libsass-maven-plugin:<version>-libsass_3.4.0:watch
+mvn com.github.warmuuh:libsass-maven-plugin:<version>-libsass_3.4.3:watch
 ```
 
 Configuration Elements
