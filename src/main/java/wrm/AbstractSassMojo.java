@@ -186,7 +186,6 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	}
 
 	protected void validateConfig() {
-		setCompileClasspath();
 		if (!generateSourceMap) {
 			if (embedSourceMapInCSS) {
 				getLog().warn("embedSourceMapInCSS=true is ignored. Cause: generateSourceMap=false");
@@ -222,6 +221,8 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 	}
 
 	protected SassCompiler initCompiler() {
+		setCompileClasspath();
+		
 		SassCompiler compiler = new SassCompiler();
 		compiler.setEmbedSourceMapInCSS(this.embedSourceMapInCSS);
 		compiler.setEmbedSourceContentsInSourceMap(this.embedSourceContentsInSourceMap);
