@@ -2,8 +2,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.warmuuh</groupId>
 	<artifactId>libsass-maven-plugin</artifactId>
-	<version>0.2.8-libsass_3.4.4-SNAPSHOT</version>
+	<version>0.2.8-libsass_3.4.4</version>
 	<packaging>maven-plugin</packaging>
+
+
+	<!--Release Notes: prepare release, mvn clean deploy -Prelease, prepare next release -->
 
 	<name>libsass plugin</name>
 	<description>Libsass plugin for maven</description>
