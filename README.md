@@ -5,7 +5,7 @@ Libsass Maven Plugin uses [libsass](http://github.com/hcatlin/libsass) to compil
 Uses [jsass](https://github.com/bit3/jsass) to interface with C-library.
 
 Changelog:
-* next   - upgraded libsass to 3.4.4
+* 0.2.8   - upgraded libsass to 3.4.4
   * used compilation classpath for including webjars
   * fixed issue with os-dependent path-separator (using ';' for every OS)
   * plugin now aware of incremental builds
