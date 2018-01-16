@@ -2,7 +2,6 @@ package wrm;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.sonatype.plexus.build.incremental.BuildContext;
 
 /**
  * Compilation of all scss files from inputpath to outputpath using includePaths
@@ -12,11 +11,6 @@ import org.sonatype.plexus.build.incremental.BuildContext;
  * @requiresDependencyResolution compile
  */
 public class CompilationMojo extends AbstractSassMojo {
-
-	/**
-	 * @component
-	 */
-	private BuildContext buildContext;
 
 	/**
 	 * Returns project relative input path for sass files. If input path is absolute, remove base dir from string.
