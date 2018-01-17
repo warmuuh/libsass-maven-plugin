@@ -1,11 +1,6 @@
 package wrm;
 
-import io.bit3.jsass.CompilationException;
-import io.bit3.jsass.Output;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.project.MavenProject;
-import wrm.libsass.SassCompiler;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,14 +9,29 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.project.MavenProject;
+import org.sonatype.plexus.build.incremental.BuildContext;
+
+import io.bit3.jsass.CompilationException;
+import io.bit3.jsass.Output;
+import wrm.libsass.SassCompiler;
 
 public abstract class AbstractSassMojo extends AbstractMojo {
 
@@ -131,13 +141,23 @@ public abstract class AbstractSassMojo extends AbstractMojo {
      * @parameter default-value="false"
      */
     private boolean copySourceToOutput;
+
     /**
 	 * @parameter property="project"
 	 * @required
 	 * @readonly
 	 */
 	protected MavenProject project;
+
+	/**
+	 * @component
+	 */
+	protected BuildContext buildContext;
+
 	protected SassCompiler compiler;
+
+	private static final Pattern PATTERN_ERROR_JSON_LINE = Pattern.compile("[\"']line[\"'][:\\s]+([0-9]+)");
+	private static final Pattern PATTERN_ERROR_JSON_COLUMN = Pattern.compile("[\"']column[\"'][:\\s]+([0-9]+)");
 
 	public AbstractSassMojo() {
 		super();
@@ -255,6 +275,7 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 			Path inputOutputPath = outputRootPath.resolve(relativeInputPath);
 			inputOutputPath.toFile().mkdirs();
 			Files.copy(inputFilePath, inputOutputPath, REPLACE_EXISTING);
+			buildContext.refresh(inputOutputPath.toFile());
 			inputFilePath = inputOutputPath;
 		}
 		
@@ -270,6 +291,33 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 		catch (CompilationException e) {
 			getLog().error(e.getMessage());
 			getLog().debug(e);
+
+			// we need this info from json:
+			// "line": 4,
+			// "column": 1,
+			// - a full blown parser for this would probably be an overkill, let's just regex
+			String errorJson = e.getErrorJson();
+			int line = 0, column = 0;
+			if (errorJson != null) { // defensive, in case we don't always get it
+				Matcher lineMatcher = PATTERN_ERROR_JSON_LINE.matcher(errorJson);
+				if (lineMatcher.find())
+					try {
+						line = Integer.parseInt(lineMatcher.group(1));
+					} catch (IndexOutOfBoundsException | NumberFormatException e1) { // in case regex doesn't cut it anymore
+						getLog().error("Failed to parse error json line: " + e1.getMessage());
+						getLog().debug(e1);
+					}
+				Matcher columnMatcher = PATTERN_ERROR_JSON_COLUMN.matcher(errorJson);
+				if (columnMatcher.find())
+					try {
+						column = Integer.parseInt(columnMatcher.group(1));
+					} catch (IndexOutOfBoundsException | NumberFormatException e1) { // in case regex doesn't cut it anymore
+						getLog().error("Failed to parse error json column: " + e1.getMessage());
+						getLog().debug(e1);
+					}
+			}
+			buildContext.addMessage(inputFilePath.toFile(), line, column, e.getErrorMessage(), BuildContext.SEVERITY_ERROR, e);
+
 			return false;
 		}
 	
@@ -295,8 +343,8 @@ public abstract class AbstractSassMojo extends AbstractMojo {
 			if (os != null)
 				os.close();
 		}
+		buildContext.refresh(outputFilePath.toFile());
 		getLog().debug("Written to: " + f);
 	}
 
-	
 }
