@@ -1,3 +1,7 @@
+# Unmaintained
+this project is no longer maintained but a fork is: https://gitlab.com/haynes/libsass-maven-plugin
+
+
 Libsass Maven Plugin [![Build Status](https://travis-ci.org/warmuuh/libsass-maven-plugin.svg?branch=master)](https://travis-ci.org/warmuuh/libsass-maven-plugin) [![Maven Central](https://img.shields.io/maven-central/v/com.github.warmuuh/libsass-maven-plugin.svg)](https://mvnrepository.com/artifact/com.github.warmuuh/libsass-maven-plugin)
 ==========
 
